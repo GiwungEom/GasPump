@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.stateIn
 class GasPumpDashboard(
     private val breadBoard: BreadBoard,
     fFule: Flow<Gas>,
-    cScope: CoroutineScope = CoroutineScope(CoroutineName("Dashboard"))
+    gasPrice: GasPrice,
+    cScope: CoroutineScope = CoroutineScope(CoroutineName("Dashboard")),
 ) {
     fun startGasPump(gas: Gas) {
         breadBoard.gasType = gas
@@ -22,11 +23,20 @@ class GasPumpDashboard(
         breadBoard.process = Process.Stop
     }
 
+    // 주유량
     val fLiters: StateFlow<Int> = fFule.scan(0) { acc, _ -> acc + 1 }
         .stateIn(
             cScope,
             SharingStarted.WhileSubscribed(),
             0
         )
+    // 주유 가격
+    val fPayment: StateFlow<Int> = gasPrice.calc(fLiters, breadBoard.fGasType)
+        .stateIn(
+            cScope,
+            SharingStarted.WhileSubscribed(),
+            0
+        )
+
 
 }

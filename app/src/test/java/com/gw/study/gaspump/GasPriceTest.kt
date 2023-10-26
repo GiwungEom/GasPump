@@ -24,20 +24,20 @@ class GasPriceTest {
 
     @Test
     fun gasPricePerLiterTest() = runTest {
-        val gasPrice = GasPrice(
-            fLiter = flow {
-                repeat(10) {
-                    emit(it + 1)
-                }
-            },
-            fGas = MutableStateFlow(Gas.Gasoline).asStateFlow()
-        )
+        val gasPrice = GasPrice()
         val price = Price(Gas.Gasoline, 8)
         gasPrice.addPrice(price)
 
         launch {
             var count = 1
-            gasPrice.fPayment.collect {
+            gasPrice.calc(
+                flow {
+                    repeat(10) {
+                        emit(it + 1)
+                    }
+                },
+                MutableStateFlow(Gas.Gasoline).asStateFlow()
+            ).collect {
                 assertTrue(it / price.pricePerLiter == count++)
             }
         }.join()

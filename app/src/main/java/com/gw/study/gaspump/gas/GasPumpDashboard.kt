@@ -1,25 +1,32 @@
 package com.gw.study.gaspump.gas
 
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
 
 class GasPumpDashboard(
-    vararg prices: Price
+    private val breadBoard: BreadBoard,
+    fFule: Flow<Gas>,
+    cScope: CoroutineScope = CoroutineScope(CoroutineName("Dashboard"))
 ) {
-
-    private val priceMap: Map<Gas, Price>
-    init {
-        priceMap = prices.associateBy { it.gasType }
+    fun startGasPump(gas: Gas) {
+        breadBoard.gasType = gas
+        breadBoard.process = Process.Start
     }
 
-    // 선택된 Gas
-    private val _fGas: MutableStateFlow<GState<Gas>> = MutableStateFlow(GState.Init)
-    val fGas: StateFlow<GState<Gas>> = _fGas.asStateFlow()
-
-    fun setGas(gas: Gas) {
-        _fGas.value = GState.Value(gas)
+    fun stopGasPump() {
+        breadBoard.process = Process.Stop
     }
 
-    fun getPrice(gasType: Gas): Int = priceMap.getValue(gasType).pricePerLiter
+    val fLiters: StateFlow<Int> = fFule.scan(0) { acc, _ -> acc + 1 }
+        .stateIn(
+            cScope,
+            SharingStarted.WhileSubscribed(),
+            0
+        )
+
 }

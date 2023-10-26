@@ -1,12 +1,13 @@
 package com.gw.study.gaspump
 
+import com.gw.study.gaspump.gas.BreadBoard
 import com.gw.study.gaspump.gas.Gas
 import com.gw.study.gaspump.gas.GasPump
 import com.gw.study.gaspump.gas.Process
 import com.gw.study.gaspump.gas.PumpEngine
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -15,13 +16,12 @@ class GasPumpTest {
 
     @Test
     fun gasPumpTest() = runTest {
-        val fProcess = MutableStateFlow(Process.Create)
+        val breadBoard = BreadBoard()
+
         val pump = GasPump(
             gas = Gas.Gasoline,
-            engine = PumpEngine(
-                cScope = this
-            ),
-            fProcess = fProcess,
+            engine = PumpEngine(cScope = this),
+            fProcess = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process },
             cScope = this
         )
         var liters = 0
@@ -31,15 +31,13 @@ class GasPumpTest {
             }
         }
 
-        fProcess.value = Process.Start
+        breadBoard.process = Process.Start
         delay(1000L)
 
-        fProcess.value = Process.Pause
+        breadBoard.process = Process.Pause
         delay(1000L)
 
-        assertEquals(20, liters)
-
-        fProcess.value = Process.Destroy
+        assertEquals(21, liters)
+        breadBoard.process = Process.Destroy
     }
-
 }

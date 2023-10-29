@@ -1,21 +1,23 @@
 package com.gw.study.gaspump
 
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
-import kotlin.coroutines.CoroutineContext
 
 class CoroutineTestScopeHelper(
-    testDispatcher: TestDispatcher
+    name: String = "GasPumpTestScope",
+    testDispatcher: TestDispatcher = StandardTestDispatcher(TestCoroutineScheduler())
 ) {
 
-    private val scope: TestScope
-    val coroutineContext: CoroutineContext
-        get() = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
-
-    init {
-        scope = TestScope(testDispatcher + CoroutineName("GasPumpTestScope"))
+    operator fun invoke(): TestScope {
+        return scope
     }
 
+    private val scope: TestScope
+
+    init {
+        scope = TestScope(testDispatcher + CoroutineName(name))
+    }
 }

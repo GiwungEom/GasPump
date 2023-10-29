@@ -2,7 +2,6 @@ package com.gw.study.gaspump.gas
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 
 class GasPrice {
@@ -13,7 +12,7 @@ class GasPrice {
         _prices[price.gasType] = price
     }
 
-    fun calc(fLiter: Flow<Int> = emptyFlow(), fGas: StateFlow<Gas>): Flow<Int> =
+    fun calc(fLiter: Flow<Int>, fGas: StateFlow<Gas>): Flow<Int> =
         fLiter.map { it * prices.getValue(fGas.value).pricePerLiter }
 
 

@@ -9,77 +9,76 @@ import com.gw.study.gaspump.gas.Price
 import com.gw.study.gaspump.gas.Process
 import com.gw.study.gaspump.gas.PumpEngine
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
+import kotlin.time.Duration.Companion.seconds
 
 class GasDashboardTest {
-    @Test
-    fun dashboardStartFuelTest() = runTest {
-        val breadBoard = BreadBoard()
-        val process = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process }
-        val pump = GasPump(
-            gas = Gas.Gasoline,
-            engine = PumpEngine(cScope = this),
-            fProcess = process,
-            cScope = this
-        )
-        val pump1 = GasPump(
-            gas = Gas.Premium,
-            engine = PumpEngine(cScope = this),
-            fProcess = process,
-            cScope = this
-        )
-        val pump2 = GasPump(
-            gas = Gas.Disel,
-            engine = PumpEngine(cScope = this),
-            fProcess = process,
-            cScope = this
-        )
 
-        val dashboard = GasPumpDashboard(
-            breadBoard = breadBoard,
-            fFule = merge(pump(), pump1(), pump2()),
-            gasPrice = GasPrice(),
-            cScope = this
-        )
-        var liters = 0
-        launch {
-            dashboard.fLiters.collect {
-                liters++
-            }
+    private lateinit var testScope: CoroutineTestScopeHelper
+    private lateinit var dashboard: GasPumpDashboard
+    @Before
+    fun setUp() {
+        testScope = CoroutineTestScopeHelper()
+        with (testScope()) {
+            val breadBoard = BreadBoard()
+            val process = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process }
+            val pump = GasPump(
+                gas = Gas.Gasoline,
+                engine = PumpEngine(cScope = this),
+                fProcess = process,
+                cScope = this
+            )
+            val pump1 = GasPump(
+                gas = Gas.Premium,
+                engine = PumpEngine(cScope = this),
+                fProcess = process,
+                cScope = this
+            )
+            val pump2 = GasPump(
+                gas = Gas.Disel,
+                engine = PumpEngine(cScope = this),
+                fProcess = process,
+                cScope = this
+            )
+
+            val gasPrice = GasPrice()
+            gasPrice.addPrice(Price(Gas.Gasoline, 5))
+
+            dashboard = GasPumpDashboard(
+                breadBoard = breadBoard,
+                fFule = merge(pump(), pump1(), pump2()),
+                gasPrice = gasPrice,
+                cScope = this
+            )
         }
-
-        dashboard.startGasPump(Gas.Gasoline)
-        delay(1000)
-        assertEquals(21, liters)
-        dashboard.stopGasPump()
     }
 
     @Test
-    fun dashboardPaymentTest() = runTest {
-        val breadBoard = BreadBoard()
-        val process = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process }
-        val pump = GasPump(
-            gas = Gas.Gasoline,
-            engine = PumpEngine(cScope = this),
-            fProcess = process,
-            cScope = this
-        )
+    fun dashboardStartFuelTest() = testScope().runTest {
+        var liters = 0
+        launch {
+            dashboard.fLiters.collect {
+                liters = it
+            }
+        }
+        dashboard.startGasPump(Gas.Gasoline)
+        delay(1.seconds)
+        dashboard.stopGasPump()
+        assertEquals(20, liters)
+    }
 
-        val gasPrice = GasPrice()
-        gasPrice.addPrice(Price(Gas.Gasoline, 3))
-
-        val dashboard = GasPumpDashboard(
-            breadBoard = breadBoard,
-            fFule = pump(),
-            gasPrice = gasPrice,
-            cScope = this
-        )
-
+    @Test
+    fun dashboardPaymentTest() = testScope().runTest {
         var payment = 0
         launch {
             dashboard.fPayment.collect {
@@ -88,11 +87,51 @@ class GasDashboardTest {
         }
 
         dashboard.startGasPump(Gas.Gasoline)
-        delay(1000L)
+        delay(1.seconds)
         dashboard.stopGasPump()
-        assertEquals(60, payment)
+        assertEquals(100, payment)
     }
 
+    @Test
+    fun dashboardPresetPaymentTest() = testScope().runTest {
+        var result = Process.Create
+        dashboard.preset = 600
 
+        launch {
+            dashboard.fProcess.collect {
+                result = it
+            }
+        }
 
+        dashboard.startGasPump(Gas.Gasoline)
+        delay(10.seconds)
+        assertEquals(Process.Stop, result)
+    }
+
+    @Test
+    fun presetSlowFactorTest() = testScope().runTest {
+        dashboard.preset = 600
+
+        val channel = Channel<Process>()
+        launch {
+            dashboard.fPayment.collect {
+                if (600 - (600 * 0.19) < it) {
+                    with ((channel as SendChannel<Process>)) {
+                        if (isActive) {
+                            send(dashboard.fProcess.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        launch {
+            for (receive in channel) {
+                assertEquals(Process.Approach, receive)
+                (channel as ReceiveChannel<Process>).cancel()
+                break
+            }
+            dashboard.stopGasPump()
+        }
+    }
 }

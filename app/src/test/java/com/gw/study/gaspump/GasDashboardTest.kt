@@ -8,6 +8,7 @@ import com.gw.study.gaspump.gas.GasPumpDashboard
 import com.gw.study.gaspump.gas.Price
 import com.gw.study.gaspump.gas.Process
 import com.gw.study.gaspump.gas.PumpEngine
+import com.gw.study.gaspump.scope.CoroutineTestScopeHelper
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel

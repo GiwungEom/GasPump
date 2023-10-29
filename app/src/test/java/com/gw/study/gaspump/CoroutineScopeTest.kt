@@ -1,5 +1,6 @@
 package com.gw.study.gaspump
 
+import com.gw.study.gaspump.scope.CoroutineTestScopeHelper
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay

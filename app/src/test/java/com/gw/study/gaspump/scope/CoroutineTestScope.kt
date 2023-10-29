@@ -1,4 +1,4 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.scope
 
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.test.StandardTestDispatcher

@@ -24,7 +24,7 @@ class CoroutineScopeTest {
     @Test
     fun coroutineScopeTest() = scopeHelper().runTest {
         delay(10.seconds)
-        assertEquals(currentTime, 10.seconds)
+        assertEquals(currentTime, 10.seconds.inWholeMilliseconds)
     }
 
     @Test

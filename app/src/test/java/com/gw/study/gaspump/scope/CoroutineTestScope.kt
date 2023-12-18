@@ -6,18 +6,11 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 
-class CoroutineTestScopeHelper(
-    name: String = "GasPumpTestScope",
-    testDispatcher: TestDispatcher = StandardTestDispatcher(TestCoroutineScheduler())
-) {
-
-    operator fun invoke(): TestScope {
-        return scope
-    }
-
-    private val scope: TestScope
-
-    init {
-        scope = TestScope(testDispatcher + CoroutineName(name))
+class CoroutineTestScopeFactory {
+    companion object {
+        fun testScope(
+            testDispatcher: TestDispatcher = StandardTestDispatcher(TestCoroutineScheduler()),
+            name: String = "GasPumpTestScope"
+        ) = TestScope(testDispatcher + CoroutineName(name))
     }
 }

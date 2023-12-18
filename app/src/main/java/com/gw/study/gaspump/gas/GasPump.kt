@@ -22,7 +22,7 @@ class GasPump(
                     when (process.second) {
                         Process.Start -> engine.start()
                         Process.Pause -> engine.pause()
-                        Process.Stop -> engine.destroy()
+                        Process.Stop -> engine.stop()
                         Process.Approach -> engine.speed = PumpEngine.Speed.Slow
                         Process.Destroy -> destroy()
                         else -> Unit

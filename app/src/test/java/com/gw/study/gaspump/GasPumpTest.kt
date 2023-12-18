@@ -20,7 +20,7 @@ class GasPumpTest {
 
         val pump = GasPump(
             gas = Gas.Gasoline,
-            engine = PumpEngine(cScope = this),
+            engine = PumpEngine(),
             fProcess = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process },
             cScope = this
         )

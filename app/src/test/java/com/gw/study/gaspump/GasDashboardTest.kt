@@ -8,7 +8,7 @@ import com.gw.study.gaspump.gas.GasPumpDashboard
 import com.gw.study.gaspump.gas.Price
 import com.gw.study.gaspump.gas.Process
 import com.gw.study.gaspump.gas.PumpEngine
-import com.gw.study.gaspump.scope.CoroutineTestScopeHelper
+import com.gw.study.gaspump.scope.CoroutineTestScopeFactory
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -25,29 +26,29 @@ import kotlin.time.Duration.Companion.seconds
 
 class GasDashboardTest {
 
-    private lateinit var testScope: CoroutineTestScopeHelper
+    private lateinit var testScope: TestScope
     private lateinit var dashboard: GasPumpDashboard
     @Before
     fun setUp() {
-        testScope = CoroutineTestScopeHelper()
-        with (testScope()) {
+        testScope = CoroutineTestScopeFactory.testScope()
+        with (testScope) {
             val breadBoard = BreadBoard()
             val process = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process }
             val pump = GasPump(
                 gas = Gas.Gasoline,
-                engine = PumpEngine(cScope = this),
+                engine = PumpEngine(),
                 fProcess = process,
                 cScope = this
             )
             val pump1 = GasPump(
                 gas = Gas.Premium,
-                engine = PumpEngine(cScope = this),
+                engine = PumpEngine(),
                 fProcess = process,
                 cScope = this
             )
             val pump2 = GasPump(
                 gas = Gas.Disel,
-                engine = PumpEngine(cScope = this),
+                engine = PumpEngine(),
                 fProcess = process,
                 cScope = this
             )
@@ -65,7 +66,7 @@ class GasDashboardTest {
     }
 
     @Test
-    fun dashboardStartFuelTest() = testScope().runTest {
+    fun dashboardStartFuelTest() = testScope.runTest {
         var liters = 0
         launch {
             dashboard.fLiters.collect {
@@ -79,7 +80,7 @@ class GasDashboardTest {
     }
 
     @Test
-    fun dashboardPaymentTest() = testScope().runTest {
+    fun dashboardPaymentTest() = testScope.runTest {
         var payment = 0
         launch {
             dashboard.fPayment.collect {
@@ -94,7 +95,7 @@ class GasDashboardTest {
     }
 
     @Test
-    fun dashboardPresetPaymentTest() = testScope().runTest {
+    fun dashboardPresetPaymentTest() = testScope.runTest {
         var result = Process.Create
         dashboard.preset = 600
 
@@ -110,7 +111,7 @@ class GasDashboardTest {
     }
 
     @Test
-    fun presetSlowFactorTest() = testScope().runTest {
+    fun presetSlowFactorTest() = testScope.runTest {
         dashboard.preset = 600
 
         val channel = Channel<Process>()

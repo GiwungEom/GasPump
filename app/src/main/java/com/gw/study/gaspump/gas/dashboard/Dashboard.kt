@@ -2,7 +2,7 @@ package com.gw.study.gaspump.gas.dashboard
 
 import com.gw.study.gaspump.gas.BreadBoard
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 import com.gw.study.gaspump.gas.price.GasPrice
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

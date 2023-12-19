@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gas.pump
+package com.gw.study.gaspump.gas.gasengine
 
 import com.gw.study.gaspump.gas.engine.Engine
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -20,12 +20,12 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class GasPumpTest {
+class GasEngineTest {
 
     @Mock
     private lateinit var engine: Engine
 
-    private lateinit var gasPump: GasPump
+    private lateinit var gasEngine: GasEngine
 
     @Before
     fun setUp() {
@@ -33,7 +33,7 @@ class GasPumpTest {
             emit(Unit)
         }
         whenever(engine.invoke()).thenReturn(action)
-        gasPump = GasPump(Gas.Gasoline, engine = engine, fPumpLifeCycle = MutableStateFlow(Gas.Gasoline to PumpLifeCycle.Create))
+        gasEngine = GasEngine(Gas.Gasoline, engine = engine, fPumpLifeCycle = MutableStateFlow(Gas.Gasoline to PumpLifeCycle.Create))
     }
 
     @Test
@@ -47,7 +47,7 @@ class GasPumpTest {
     fun whenCollect_shouldReturnGasType() = runTest {
         var actual: Gas? = null
         val job = launch {
-            gasPump.invoke().collect {
+            gasEngine.invoke().collect {
                 actual = it
             }
         }

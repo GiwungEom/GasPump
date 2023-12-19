@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gas.pump.mapper
+package com.gw.study.gaspump.gas.gasengine.mapper
 
 import com.gw.study.gaspump.gas.engine.model.EngineLifeCycle
 import com.gw.study.gaspump.gas.engine.model.Speed
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 
 class PumpToEngineLifeCycleMapper {
     fun toEngineLifeCycle(pumpLifeCycle: PumpLifeCycle) =

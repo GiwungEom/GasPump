@@ -5,8 +5,8 @@ import com.gw.study.gaspump.gas.engine.Engine
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.price.model.Price
-import com.gw.study.gaspump.gas.pump.GasPump
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.GasEngine
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 import com.gw.study.gaspump.scope.CoroutineTestScopeFactory
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.channels.Channel
@@ -33,17 +33,17 @@ class GasDashboardTest {
         with (testScope) {
             val breadBoard = BreadBoard()
             val process = breadBoard.fPumpLifeCycle.combine(breadBoard.fGasType) { pumpLifeCycle: PumpLifeCycle, gas: Gas -> gas to pumpLifeCycle }
-            val pump = GasPump(
+            val pump = GasEngine(
                 gas = Gas.Gasoline,
                 engine = Engine(),
                 fPumpLifeCycle = process
             )
-            val pump1 = GasPump(
+            val pump1 = GasEngine(
                 gas = Gas.Premium,
                 engine = Engine(),
                 fPumpLifeCycle = process
             )
-            val pump2 = GasPump(
+            val pump2 = GasEngine(
                 gas = Gas.Diesel,
                 engine = Engine(),
                 fPumpLifeCycle = process

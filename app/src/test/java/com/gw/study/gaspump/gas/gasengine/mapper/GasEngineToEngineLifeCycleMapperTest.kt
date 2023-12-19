@@ -1,7 +1,7 @@
-package com.gw.study.gaspump.gas.pump.mapper
+package com.gw.study.gaspump.gas.gasengine.mapper
 
 import com.gw.study.gaspump.gas.engine.model.EngineLifeCycle
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
 @RunWith(Parameterized::class)
-class PumpToEngineEngineLifeCycleMapperTest(
+class GasEngineToEngineLifeCycleMapperTest(
     private val pumpLifeCycle: PumpLifeCycle,
     private val expected: EngineLifeCycle
 ) {

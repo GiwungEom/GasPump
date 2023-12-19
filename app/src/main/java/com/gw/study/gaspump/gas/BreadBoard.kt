@@ -2,7 +2,7 @@ package com.gw.study.gaspump.gas
 
 import com.gw.study.gaspump.gas.engine.Engine
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.gasengine.model.PumpLifeCycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

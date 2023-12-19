@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gas.pump.model
+package com.gw.study.gaspump.gas.gasengine.model
 
 enum class PumpLifeCycle {
     Create,

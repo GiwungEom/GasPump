@@ -1,5 +1,9 @@
-package com.gw.study.gaspump.gas
+package com.gw.study.gaspump.gas.dashboard
 
+import com.gw.study.gaspump.gas.BreadBoard
+import com.gw.study.gaspump.gas.model.Gas
+import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.price.GasPrice
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +17,7 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class GasPumpDashboard(
+class Dashboard(
     private val slowFactor: Float = 0.2f,
     private val breadBoard: BreadBoard,
     fFule: Flow<Gas>,
@@ -22,11 +26,11 @@ class GasPumpDashboard(
 ) {
     fun startGasPump(gas: Gas) {
         breadBoard.gasType = gas
-        breadBoard.process = Process.Start
+        breadBoard.pumpLifeCycle = PumpLifeCycle.Start
     }
 
     fun stopGasPump() {
-        breadBoard.process = Process.Stop
+        breadBoard.pumpLifeCycle = PumpLifeCycle.Stop
     }
 
     // 지정 가격
@@ -37,7 +41,7 @@ class GasPumpDashboard(
     private val _fPreset = MutableStateFlow(0)
 
     // 주유 상태
-    val fProcess = breadBoard.fProcess
+    val fProcess = breadBoard.fPumpLifeCycle
 
     // 주유량
     val fLiters: StateFlow<Int> = fFule.scan(0) { acc, _ -> acc + 1 }
@@ -69,9 +73,9 @@ class GasPumpDashboard(
             if (pre <= pay) {
                 stopGasPump()
             } else if (pre - (pre * slowFactor) < pay) {
-                breadBoard.process = Process.Approach
+                breadBoard.pumpLifeCycle = PumpLifeCycle.Approach
             } else {
-                breadBoard.process = Process.Start
+                breadBoard.pumpLifeCycle = PumpLifeCycle.Start
             }
         }
     }

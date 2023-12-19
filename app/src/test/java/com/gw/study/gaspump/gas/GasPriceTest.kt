@@ -1,8 +1,8 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.gas
 
-import com.gw.study.gaspump.gas.Gas
-import com.gw.study.gaspump.gas.GasPrice
-import com.gw.study.gaspump.gas.Price
+import com.gw.study.gaspump.gas.model.Gas
+import com.gw.study.gaspump.gas.price.GasPrice
+import com.gw.study.gaspump.gas.price.model.Price
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow

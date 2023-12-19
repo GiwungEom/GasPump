@@ -1,4 +1,4 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.gas
 
 import com.gw.study.gaspump.gas.GState
 import com.gw.study.gaspump.gas.value

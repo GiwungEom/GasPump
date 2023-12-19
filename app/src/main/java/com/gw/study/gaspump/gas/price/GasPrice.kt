@@ -1,5 +1,7 @@
-package com.gw.study.gaspump.gas
+package com.gw.study.gaspump.gas.price
 
+import com.gw.study.gaspump.gas.model.Gas
+import com.gw.study.gaspump.gas.price.model.Price
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

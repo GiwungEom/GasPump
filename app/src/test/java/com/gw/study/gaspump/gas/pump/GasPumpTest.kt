@@ -1,10 +1,10 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.gas.pump
 
-import com.gw.study.gaspump.gas.Gas
-import com.gw.study.gaspump.gas.GasPump
-import com.gw.study.gaspump.gas.PumpEngine
+import com.gw.study.gaspump.gas.engine.Engine
+import com.gw.study.gaspump.gas.model.Gas
+import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -15,13 +15,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class GasPumpTest {
 
     @Mock
-    private lateinit var engine: PumpEngine
+    private lateinit var engine: Engine
 
     private lateinit var gasPump: GasPump
 
@@ -31,12 +33,18 @@ class GasPumpTest {
             emit(Unit)
         }
         whenever(engine.invoke()).thenReturn(action)
+        gasPump = GasPump(Gas.Gasoline, engine = engine, fPumpLifeCycle = MutableStateFlow(Gas.Gasoline to PumpLifeCycle.Create))
+    }
+
+    @Test
+    fun whenInitialize_shouldInitLifeCycleAndSpeedState() {
+        verify(engine).lifeCycleState = any()
+        verify(engine).speedState = any()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun whenCollect_shouldReturnGasType() = runTest {
-        gasPump = GasPump(Gas.Gasoline, engine = engine, fProcess = emptyFlow(), this)
         var actual: Gas? = null
         val job = launch {
             gasPump.invoke().collect {

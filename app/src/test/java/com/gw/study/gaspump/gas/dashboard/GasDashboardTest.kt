@@ -1,13 +1,12 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.gas.dashboard
 
 import com.gw.study.gaspump.gas.BreadBoard
-import com.gw.study.gaspump.gas.Gas
-import com.gw.study.gaspump.gas.GasPrice
-import com.gw.study.gaspump.gas.GasPump
-import com.gw.study.gaspump.gas.GasPumpDashboard
-import com.gw.study.gaspump.gas.Price
-import com.gw.study.gaspump.gas.Process
-import com.gw.study.gaspump.gas.PumpEngine
+import com.gw.study.gaspump.gas.engine.Engine
+import com.gw.study.gaspump.gas.model.Gas
+import com.gw.study.gaspump.gas.price.GasPrice
+import com.gw.study.gaspump.gas.price.model.Price
+import com.gw.study.gaspump.gas.pump.GasPump
+import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
 import com.gw.study.gaspump.scope.CoroutineTestScopeFactory
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.channels.Channel
@@ -27,36 +26,33 @@ import kotlin.time.Duration.Companion.seconds
 class GasDashboardTest {
 
     private lateinit var testScope: TestScope
-    private lateinit var dashboard: GasPumpDashboard
+    private lateinit var dashboard: Dashboard
     @Before
     fun setUp() {
         testScope = CoroutineTestScopeFactory.testScope()
         with (testScope) {
             val breadBoard = BreadBoard()
-            val process = breadBoard.fProcess.combine(breadBoard.fGasType) { process: Process, gas: Gas -> gas to process }
+            val process = breadBoard.fPumpLifeCycle.combine(breadBoard.fGasType) { pumpLifeCycle: PumpLifeCycle, gas: Gas -> gas to pumpLifeCycle }
             val pump = GasPump(
                 gas = Gas.Gasoline,
-                engine = PumpEngine(),
-                fProcess = process,
-                cScope = this
+                engine = Engine(),
+                fPumpLifeCycle = process
             )
             val pump1 = GasPump(
                 gas = Gas.Premium,
-                engine = PumpEngine(),
-                fProcess = process,
-                cScope = this
+                engine = Engine(),
+                fPumpLifeCycle = process
             )
             val pump2 = GasPump(
-                gas = Gas.Disel,
-                engine = PumpEngine(),
-                fProcess = process,
-                cScope = this
+                gas = Gas.Diesel,
+                engine = Engine(),
+                fPumpLifeCycle = process
             )
 
             val gasPrice = GasPrice()
             gasPrice.addPrice(Price(Gas.Gasoline, 5))
 
-            dashboard = GasPumpDashboard(
+            dashboard = Dashboard(
                 breadBoard = breadBoard,
                 fFule = merge(pump(), pump1(), pump2()),
                 gasPrice = gasPrice,
@@ -96,7 +92,7 @@ class GasDashboardTest {
 
     @Test
     fun dashboardPresetPaymentTest() = testScope.runTest {
-        var result = Process.Create
+        var result = PumpLifeCycle.Create
         dashboard.preset = 600
 
         launch {
@@ -107,18 +103,18 @@ class GasDashboardTest {
 
         dashboard.startGasPump(Gas.Gasoline)
         delay(10.seconds)
-        assertEquals(Process.Stop, result)
+        assertEquals(PumpLifeCycle.Stop, result)
     }
 
     @Test
     fun presetSlowFactorTest() = testScope.runTest {
         dashboard.preset = 600
 
-        val channel = Channel<Process>()
+        val channel = Channel<PumpLifeCycle>()
         launch {
             dashboard.fPayment.collect {
                 if (600 - (600 * 0.19) < it) {
-                    with ((channel as SendChannel<Process>)) {
+                    with ((channel as SendChannel<PumpLifeCycle>)) {
                         if (isActive) {
                             send(dashboard.fProcess.value)
                         }
@@ -129,8 +125,8 @@ class GasDashboardTest {
 
         launch {
             for (receive in channel) {
-                assertEquals(Process.Approach, receive)
-                (channel as ReceiveChannel<Process>).cancel()
+                assertEquals(PumpLifeCycle.Approach, receive)
+                (channel as ReceiveChannel<PumpLifeCycle>).cancel()
                 break
             }
             dashboard.stopGasPump()

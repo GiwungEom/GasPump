@@ -35,12 +35,13 @@ class EngineTests {
 
     @Before
     fun setUp() {
+        whenever(receiveEngineState.getLifeCycle()).thenReturn(engineLifeCycleState)
+        whenever(receiveEngineState.getSpeed()).thenReturn(speedState)
+
         engine = Engine(
             speedConfig = SpeedConfig(1L, 10L),
             receiveEngineState
         )
-        whenever(receiveEngineState.getLifeCycle()).thenReturn(engineLifeCycleState)
-        whenever(receiveEngineState.getSpeed()).thenReturn(speedState)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

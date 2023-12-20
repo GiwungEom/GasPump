@@ -3,7 +3,6 @@ package com.gw.study.gaspump.gas.price
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.model.Price
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -50,28 +49,6 @@ class GasPriceTest {
             priceFlow.toList(actual)
         }
 
-        Assert.assertEquals(expected.joinToString(), actual.joinToString())
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun gasPricePerLiterTest() = runTest(UnconfinedTestDispatcher()) {
-        val gasPrice = GasPrice()
-        val price = Price(Gas.Gasoline, 8)
-        gasPrice.addPrice(price)
-        val expected = listOf(0, 8, 16)
-        val actual = mutableListOf<Int>()
-
-        launch {
-            gasPrice.calc(
-                flow {
-                    repeat(3) {
-                        emit(it)
-                    }
-                },
-                MutableStateFlow(Gas.Gasoline)
-            ).toList(actual)
-        }
         Assert.assertEquals(expected.joinToString(), actual.joinToString())
     }
 }

@@ -1,12 +1,12 @@
-package com.gw.study.gaspump.gas.engine
+package com.gw.study.gaspump.gas.pump.engine
 
 import com.gw.study.gaspump.exeption.ReachedLineException
-import com.gw.study.gaspump.gas.engine.model.EngineLifeCycle
-import com.gw.study.gaspump.gas.engine.model.Speed
-import com.gw.study.gaspump.gas.engine.model.SpeedConfig
+import com.gw.study.gaspump.gas.pump.engine.lifecycle.EngineLifeCycle
+import com.gw.study.gaspump.gas.pump.engine.lifecycle.ReceiveEngineState
+import com.gw.study.gaspump.gas.pump.engine.model.Speed
+import com.gw.study.gaspump.gas.pump.engine.model.SpeedConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
@@ -18,21 +18,29 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
+@RunWith(MockitoJUnitRunner::class)
 class EngineTest {
 
     private lateinit var engine: Engine
     private val engineLifeCycleState: MutableStateFlow<EngineLifeCycle> = MutableStateFlow(EngineLifeCycle.Create)
     private val speedState: MutableStateFlow<Speed> = MutableStateFlow(Speed.Normal)
 
+    @Mock
+    private lateinit var receiveEngineState: ReceiveEngineState
+
     @Before
     fun setUp() {
         engine = Engine(
-            speedConfig = SpeedConfig(1L, 10L)
-        ).apply {
-            lifeCycleState = this@EngineTest.engineLifeCycleState
-            speedState = this@EngineTest.speedState
-        }
+            speedConfig = SpeedConfig(1L, 10L),
+            receiveEngineState
+        )
+        whenever(receiveEngineState.getLifeCycle()).thenReturn(engineLifeCycleState)
+        whenever(receiveEngineState.getSpeed()).thenReturn(speedState)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -67,8 +75,7 @@ class EngineTest {
         speedState.value = Speed.Normal
         startEngine(
             speedConfig = speedConfig,
-            virtualTime = virtualTime,
-            speedState = speedState
+            virtualTime = virtualTime
         ) { actual++ }
         Assert.assertEquals(expected, actual)
     }
@@ -82,8 +89,7 @@ class EngineTest {
         speedState.value = Speed.Slow
         startEngine(
             speedConfig = speedConfig,
-            virtualTime = virtualTime,
-            speedState = speedState
+            virtualTime = virtualTime
         ) { actual++ }
 
         Assert.assertEquals(expected, actual)
@@ -92,16 +98,13 @@ class EngineTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun TestScope.startEngine(
         speedConfig: SpeedConfig = SpeedConfig(1L, 10L),
-        speedState: Flow<Speed>,
         virtualTime: Long,
         action: () -> Unit
     ) {
         val engine = Engine(
-            speedConfig = speedConfig
-        ).apply {
-            this.speedState = speedState
-            this.lifeCycleState = this@EngineTest.engineLifeCycleState
-        }
+            speedConfig = speedConfig,
+            receiveEngineState
+        )
 
         engineLifeCycleState.value = EngineLifeCycle.Start
         val job = launch {

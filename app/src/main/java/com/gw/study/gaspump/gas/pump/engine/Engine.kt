@@ -1,8 +1,9 @@
-package com.gw.study.gaspump.gas.engine
+package com.gw.study.gaspump.gas.pump.engine
 
-import com.gw.study.gaspump.gas.engine.model.EngineLifeCycle
-import com.gw.study.gaspump.gas.engine.model.Speed
-import com.gw.study.gaspump.gas.engine.model.SpeedConfig
+import com.gw.study.gaspump.gas.pump.engine.lifecycle.EngineLifeCycle
+import com.gw.study.gaspump.gas.pump.engine.lifecycle.ReceiveEngineState
+import com.gw.study.gaspump.gas.pump.engine.model.Speed
+import com.gw.study.gaspump.gas.pump.engine.model.SpeedConfig
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -12,10 +13,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 class Engine(
-    private val speedConfig: SpeedConfig = SpeedConfig(50L, 100L)
+    private val speedConfig: SpeedConfig = SpeedConfig(50L, 100L),
+    receiveState: ReceiveEngineState
 ) {
-    lateinit var lifeCycleState: Flow<EngineLifeCycle>
-    lateinit var speedState: Flow<Speed>
+    private val lifeCycleState: Flow<EngineLifeCycle> = receiveState.getLifeCycle()
+    private val speedState: Flow<Speed> = receiveState.getSpeed()
 
     operator fun invoke(): Flow<Unit> {
         return fEngine.filter {

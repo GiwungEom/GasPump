@@ -1,9 +1,9 @@
 package com.gw.study.gaspump.gas.price
 
+import com.gw.study.gaspump.assistant.factory.TestFlow
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.model.Price
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -37,11 +37,7 @@ class GasPriceTest {
         val expected = listOf(0, 8, 16, 24)
         val actual = mutableListOf<Int>()
 
-        val fuelFlow = flow {
-            repeat(3) {
-                emit(Gas.Gasoline)
-            }
-        }
+        val fuelFlow = TestFlow.testFlow(3, Gas.Gasoline)
         val priceFlow = gasPrice.calcAcc(
             fuelFlow
         )

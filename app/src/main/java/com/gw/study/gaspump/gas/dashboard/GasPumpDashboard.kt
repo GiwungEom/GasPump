@@ -50,14 +50,16 @@ class GasPumpDashboard(
     }
 
     fun setPresetPayment(expected: Int) {
-        _presetPayment.value = expected
+        if (engineBreadBoard.getSpeed().value == Speed.Normal) {
+            _presetPayment.value = expected
+        }
     }
 
-    private suspend fun changeSpeed(normalSpeed: Boolean) {
+    private fun changeSpeed(normalSpeed: Boolean) {
         if (normalSpeed) {
-            engineBreadBoard.sendSpeed(Speed.Normal)
+            engineBreadBoard.setSpeed(Speed.Normal)
         } else {
-            engineBreadBoard.sendSpeed(Speed.Slow)
+            engineBreadBoard.setSpeed(Speed.Slow)
         }
     }
 }

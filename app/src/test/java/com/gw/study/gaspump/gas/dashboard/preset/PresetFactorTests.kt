@@ -30,4 +30,12 @@ class PresetFactorTests {
             Assert.assertFalse(it)
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenPresetPaymentNotSetYet_shouldReturnTrue() = runTest(UnconfinedTestDispatcher()) {
+        presetFactor.checkPresetFactor(0, 6) {
+            Assert.assertTrue(it)
+        }
+    }
 }

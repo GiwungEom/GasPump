@@ -7,7 +7,4 @@ import kotlinx.coroutines.flow.StateFlow
 interface ReceiveEngineState {
     fun getLifeCycle(): StateFlow<EngineLifeCycle>
     fun getSpeed(): StateFlow<Speed>
-
-
-
 }

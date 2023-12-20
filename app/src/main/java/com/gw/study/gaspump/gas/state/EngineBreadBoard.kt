@@ -1,8 +1,8 @@
 package com.gw.study.gaspump.gas.state
 
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
+import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +19,9 @@ class EngineBreadBoard : BreadBoard {
 
     override fun getSpeed(): StateFlow<Speed> = engineSpeed.asStateFlow()
 
-    override suspend fun sendSpeed(speed: Speed) = engineSpeed.emit(speed)
+    override fun setSpeed(speed: Speed) {
+        engineSpeed.value = speed
+    }
 
     override fun getGasType(): StateFlow<Gas> = gasType.asStateFlow()
 

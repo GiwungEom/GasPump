@@ -11,17 +11,17 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
-class GasPriceTest {
+class CumulateGasPriceTest {
 
     @Test
     fun whenInit_shouldBePriceMapEmpty() {
-        val gasPrice = GasPrice()
+        val gasPrice = CumulateGasPrice()
         Assert.assertEquals(0, gasPrice.prices.size)
     }
 
     @Test
     fun whenAddPrice_shouldNotBeEmpty() {
-        val gasPrice = GasPrice()
+        val gasPrice = CumulateGasPrice()
         val price = Price(Gas.Gasoline, 8)
         gasPrice.addPrice(price)
         Assert.assertTrue(gasPrice.prices.isNotEmpty())
@@ -30,7 +30,7 @@ class GasPriceTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun whenFuelFlowsIn_shouldCalcWithGasPriceCumulatively() = runTest(UnconfinedTestDispatcher()) {
-        val gasPrice = GasPrice()
+        val gasPrice = CumulateGasPrice()
         val price = Price(Gas.Gasoline, 8)
         gasPrice.addPrice(price)
 
@@ -38,7 +38,7 @@ class GasPriceTest {
         val actual = mutableListOf<Int>()
 
         val fuelFlow = TestFlow.testFlow(3, Gas.Gasoline)
-        val priceFlow = gasPrice.calcAcc(
+        val priceFlow = gasPrice.calc(
             fuelFlow
         )
         launch {

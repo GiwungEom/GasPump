@@ -1,28 +1,21 @@
 package com.gw.study.gaspump.gas.pump
 
-import com.gw.study.gaspump.gas.engine.Engine
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.mapper.PumpToEngineLifeCycleMapper
-import com.gw.study.gaspump.gas.pump.mapper.PumpToEngineSpeedMapper
-import com.gw.study.gaspump.gas.pump.model.PumpLifeCycle
+import com.gw.study.gaspump.gas.pump.engine.type.GasEngine
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 
-class GasPump(
-    private val gas: Gas,
-    private val engine: Engine,
-    fPumpLifeCycle: Flow<Pair<Gas, PumpLifeCycle>> = MutableStateFlow(Pair(Gas.Unknown, PumpLifeCycle.Create)),
-    private val engineStateMapper: PumpToEngineLifeCycleMapper = PumpToEngineLifeCycleMapper(),
-    private val engineSpeedMapper: PumpToEngineSpeedMapper = PumpToEngineSpeedMapper()
-) {
+class GasPump(vararg gasEngine: GasEngine) {
 
-    private val pumpLifeCycle = fPumpLifeCycle.filter { it.first == gas }
+    private val types: Map<Gas, GasEngine>
+    private val pump: Flow<Gas>
+
+    operator fun invoke() = pump
+
+
     init {
-        engine.lifeCycleState = pumpLifeCycle.map { engineStateMapper.toEngineLifeCycle(it.second) }
-        engine.speedState = pumpLifeCycle.map { engineSpeedMapper.toEngineSpeed(it.second) }
+        types = gasEngine.associateBy { it.gas }
+        pump = types.map { it.value.invoke() }.merge()
     }
 
-    operator fun invoke(): Flow<Gas> = engine().map { gas }
 }

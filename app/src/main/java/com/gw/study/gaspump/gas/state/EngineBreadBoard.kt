@@ -1,15 +1,17 @@
-package com.gw.study.gaspump.gas.common
+package com.gw.study.gaspump.gas.state
 
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.pump.engine.lifecycle.EngineLifeCycle
 import com.gw.study.gaspump.gas.pump.engine.lifecycle.ReceiveEngineState
 import com.gw.study.gaspump.gas.pump.engine.lifecycle.SendEngineState
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
+import com.gw.study.gaspump.gas.pump.engine.type.ReceiveGasEngineState
+import com.gw.study.gaspump.gas.pump.engine.type.SendGasEngineState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class EngineBreadBoard : ReceiveEngineState, SendEngineState {
+class EngineBreadBoard : ReceiveEngineState, SendEngineState, ReceiveGasEngineState, SendGasEngineState {
 
     private val engineLifeCycle = MutableStateFlow(EngineLifeCycle.Create)
     private val engineSpeed = MutableStateFlow(Speed.Normal)

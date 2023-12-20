@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gas.pump.engine.type
+package com.gw.study.gaspump.gas.pump.type
 
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.pump.engine.Engine

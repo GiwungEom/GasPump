@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gas.pump.engine.lifecycle
+package com.gw.study.gaspump.gas.pump.engine.state
 
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
 import kotlinx.coroutines.flow.StateFlow

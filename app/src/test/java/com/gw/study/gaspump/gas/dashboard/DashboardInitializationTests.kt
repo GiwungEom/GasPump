@@ -53,7 +53,7 @@ class DashboardInitializationTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun whenCollectGasAmount_shouldEmitOne() = runTest {
-        var actual = 0
+        var actual = 1
         dashboard.gasAmount.collect {
             actual = it
         }

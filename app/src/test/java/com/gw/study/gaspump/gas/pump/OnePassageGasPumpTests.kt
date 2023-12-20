@@ -2,7 +2,7 @@ package com.gw.study.gaspump.gas.pump
 
 import com.gw.study.gaspump.assistant.factory.TestFlow
 import com.gw.study.gaspump.gas.model.Gas
-import com.gw.study.gaspump.gas.pump.engine.type.GasEngine
+import com.gw.study.gaspump.gas.pump.engine.type.PowerGasEngine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -17,18 +17,18 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class GasPumpTests {
+class OnePassageGasPumpTests {
 
     @Mock
-    private lateinit var gasolineEngine: GasEngine
+    private lateinit var gasolineEngine: PowerGasEngine
 
     @Mock
-    private lateinit var dieselEngine: GasEngine
+    private lateinit var dieselEngine: PowerGasEngine
 
     @Mock
-    private lateinit var premiumEngine: GasEngine
+    private lateinit var premiumEngine: PowerGasEngine
 
-    private lateinit var gasPump: GasPump
+    private lateinit var gasPump: OnePassageGasPump
 
     @Before
     fun setUp() {
@@ -36,7 +36,7 @@ class GasPumpTests {
         whenever(dieselEngine.gas).thenReturn(Gas.Diesel)
         whenever(premiumEngine.gas).thenReturn(Gas.Premium)
 
-        gasPump = GasPump(gasolineEngine, dieselEngine, premiumEngine)
+        gasPump = OnePassageGasPump(gasolineEngine, dieselEngine, premiumEngine)
     }
 
     @Test
@@ -53,7 +53,7 @@ class GasPumpTests {
         whenever(dieselEngine.invoke()).thenReturn(TestFlow.testFlow(1, expected))
         whenever(gasolineEngine.invoke()).thenReturn(emptyFlow())
         whenever(premiumEngine.invoke()).thenReturn(emptyFlow())
-        val gasPump = GasPump(gasolineEngine, dieselEngine, premiumEngine)
+        val gasPump = OnePassageGasPump(gasolineEngine, dieselEngine, premiumEngine)
         var gasType: Gas = Gas.Unknown
         gasPump().collect {
             gasType = it

@@ -24,9 +24,9 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class EngineTests {
+class LoopEngineTests {
 
-    private lateinit var engine: Engine
+    private lateinit var engine: LoopEngine
     private val engineLifeCycleState: MutableStateFlow<EngineLifeCycle> = MutableStateFlow(EngineLifeCycle.Create)
     private val speedState: MutableStateFlow<Speed> = MutableStateFlow(Speed.Normal)
 
@@ -38,7 +38,7 @@ class EngineTests {
         whenever(receiveEngineState.getLifeCycle()).thenReturn(engineLifeCycleState)
         whenever(receiveEngineState.getSpeed()).thenReturn(speedState)
 
-        engine = Engine(
+        engine = LoopEngine(
             speedConfig = SpeedConfig(1L, 10L),
             receiveEngineState
         )
@@ -102,7 +102,7 @@ class EngineTests {
         virtualTime: Long,
         action: () -> Unit
     ) {
-        val engine = Engine(
+        val engine = LoopEngine(
             speedConfig = speedConfig,
             receiveEngineState
         )

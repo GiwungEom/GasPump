@@ -4,7 +4,6 @@ import com.gw.study.gaspump.assistant.factory.TestFlow
 import com.gw.study.gaspump.exeption.ReachedLineException
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.pump.engine.LoopEngine
-import com.gw.study.gaspump.gas.pump.type.PowerGasEngine
 import com.gw.study.gaspump.gas.state.EngineBreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

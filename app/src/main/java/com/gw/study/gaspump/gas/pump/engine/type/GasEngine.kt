@@ -11,6 +11,6 @@ class GasEngine(
     private val engine: Engine,
     private val receiveState: ReceiveGasEngineState
 ) {
-    operator fun invoke(): Flow<Gas> = engine().map { gas }.filter { it == receiveState.getGasType() }
+    operator fun invoke(): Flow<Gas> = engine().map { gas }.filter { it == receiveState.getGasType().value }
 
 }

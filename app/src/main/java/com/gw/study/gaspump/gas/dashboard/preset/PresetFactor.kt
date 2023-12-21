@@ -6,9 +6,9 @@ class PresetFactor(
 
     private fun getReferencePayment(presetPayment: Int): Int = (presetPayment * presetFactor).toInt()
 
-    fun checkPresetFactor(presetPayment: Int, gasAmount: Int, action: (Boolean) -> Unit) {
-        if (presetPayment > 0 && gasAmount > 0) {
-            action(getReferencePayment(presetPayment) >= gasAmount)
+    fun checkPresetFactor(presetGasAmount: Int, gasAmount: Int, action: (Boolean) -> Unit) {
+        if (presetGasAmount > 0 && gasAmount > 0) {
+            action(getReferencePayment(presetGasAmount) >= gasAmount)
         } else {
             action(true)
         }

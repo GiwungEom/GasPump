@@ -21,12 +21,12 @@ class GasPumpDashboard(
     private val presetFactor: PresetFactor = PresetFactor()
 ) {
 
-    private val _presetPayment = MutableStateFlow(0)
-    val presetPayment: StateFlow<Int> = _presetPayment.asStateFlow()
+    private val _presetGasAmount = MutableStateFlow(0)
+    val presetGasAmount: StateFlow<Int> = _presetGasAmount.asStateFlow()
     private val gasFlow = gasPump()
 
     val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }.onEach { gasAmount ->
-        presetFactor.checkPresetFactor(presetPayment = presetPayment.value, gasAmount = gasAmount) { changeSpeed(it) }
+        presetFactor.checkPresetFactor(presetGasAmount = presetGasAmount.value, gasAmount = gasAmount) { changeSpeed(it) }
     }
 
     val payment = gasPrice.calc(gasFlow)
@@ -49,9 +49,9 @@ class GasPumpDashboard(
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Paused)
     }
 
-    fun setPresetPayment(expected: Int) {
+    fun setPresetGasAmount(expected: Int) {
         if (engineBreadBoard.getSpeed().value == Speed.Normal) {
-            _presetPayment.value = expected
+            _presetGasAmount.value = expected
         }
     }
 

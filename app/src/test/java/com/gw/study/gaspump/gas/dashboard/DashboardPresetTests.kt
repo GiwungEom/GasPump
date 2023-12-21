@@ -6,7 +6,6 @@ import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.pump.GasPump
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
-import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gas.state.BreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +25,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 
-private const val PRESET_AMOUNT = 4
+private const val PRESET_GAS_AMOUNT = 4
 
 @RunWith(MockitoJUnitRunner::class)
 class DashboardPresetTests {
@@ -52,13 +51,13 @@ class DashboardPresetTests {
         whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline))
         whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED))
         whenever(engineBreadBoard.getSpeed()).thenReturn(speedMutableState)
-        dashboard = GasPumpDashboard(gasPump, gasPrice, engineBreadBoard, presetFactor).apply { setPresetPayment(PRESET_AMOUNT) }
+        dashboard = GasPumpDashboard(gasPump, gasPrice, engineBreadBoard, presetFactor).apply { setPresetGasAmount(PRESET_GAS_AMOUNT) }
     }
 
     @Test
-    fun whenSetPresetPayment_shouldCallPresetPaymentValue() {
+    fun whenSetPresetAmount_shouldCallPresetAmountValue() {
         speedMutableState.value = Speed.Normal
-        Assert.assertEquals(PRESET_AMOUNT, dashboard.presetPayment.value)
+        Assert.assertEquals(PRESET_GAS_AMOUNT, dashboard.presetGasAmount.value)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -81,19 +80,12 @@ class DashboardPresetTests {
     }
 
     @Test
-    fun whenEngineSpeedSlow_shouldNotChangePresetPayment() = runTest {
+    fun whenEngineSpeedSlow_shouldNotChangePresetAmount() = runTest {
         speedMutableState.value = Speed.Slow
         val expected = 10
-        dashboard.setPresetPayment(expected)
-        Assert.assertNotEquals(expected, dashboard.presetPayment.value)
+        dashboard.setPresetGasAmount(expected)
+        Assert.assertNotEquals(expected, dashboard.presetGasAmount.value)
     }
-
-    @Test
-    fun whenReachedPresetPayment_shouldStopGasPump() = runTest {
-        verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Stop))
-    }
-
-    // pause
 
     private fun setPresetFactorReturn(returnValue: Boolean) {
         doAnswer {

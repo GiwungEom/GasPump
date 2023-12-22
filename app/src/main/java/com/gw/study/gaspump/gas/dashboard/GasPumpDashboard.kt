@@ -38,6 +38,10 @@ class GasPumpDashboard(
 
     val presetGasAmount: StateFlow<PresetGauge.AmountInfo> = presetGauge.presetAmount
 
+    val lifeCycle = engineBreadBoard.getLifeCycle()
+
+    val speed = engineBreadBoard.getSpeed()
+
     init {
         presetGauge.getGauge(gasAmount, payment)
             .onEach {
@@ -46,7 +50,9 @@ class GasPumpDashboard(
     }
 
     suspend fun setGasType(gas: Gas) {
-        engineBreadBoard.sendGasType(gas)
+        if (lifeCycle.value != EngineLifeCycle.Start) {
+            engineBreadBoard.sendGasType(gas)
+        }
     }
 
     suspend fun pumpStart() {

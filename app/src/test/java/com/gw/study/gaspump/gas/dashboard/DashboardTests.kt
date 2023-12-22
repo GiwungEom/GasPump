@@ -9,7 +9,10 @@ import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.pump.GasPump
 import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gas.state.BreadBoard
+import com.gw.study.gaspump.scope.CoroutineTestScopeFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -48,6 +51,7 @@ class DashboardTests {
         dashboardBuilder.addStubs(
             GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline)) },
             GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
+            BreadBoard::class to { whenever(engineBreadBoard.getLifeCycle()).thenReturn(MutableStateFlow(EngineLifeCycle.Create)) },
             PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Empty)) }
         )
     }
@@ -93,13 +97,6 @@ class DashboardTests {
     }
 
     @Test
-    fun whenSetGasType_shouldCallGasType() = runTest {
-        val dashboard = dashboardBuilder.setScope(this).build()
-        dashboard.setGasType(Gas.Gasoline)
-        verify(engineBreadBoard).sendGasType(eq(Gas.Gasoline))
-    }
-
-    @Test
     fun whenCallPumpStart_shouldCallSendLifeCycleWithStart() = runTest {
         val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.pumpStart()
@@ -117,5 +114,22 @@ class DashboardTests {
         val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.pumpPause()
         verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Paused))
+    }
+
+    @Test
+    fun whenSetGasType_shouldCallGasType() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
+        dashboard.setGasType(Gas.Gasoline)
+        verify(engineBreadBoard).sendGasType(eq(Gas.Gasoline))
+    }
+
+    @Test
+    fun whenDestroyCalled_shouldBeCoroutineScopeActiveStateFalse() = runTest {
+        val scope = CoroutineTestScopeFactory.testScope()
+        dashboardBuilder
+            .setScope(scope)
+            .build()
+            .destroy()
+        Assert.assertFalse(scope.isActive)
     }
 }

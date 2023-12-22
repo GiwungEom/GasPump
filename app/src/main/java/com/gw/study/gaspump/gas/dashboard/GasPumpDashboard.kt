@@ -1,15 +1,21 @@
 package com.gw.study.gaspump.gas.dashboard
 
-import com.gw.study.gaspump.gas.dashboard.preset.PresetFactor
+import com.gw.study.gaspump.gas.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gas.dashboard.preset.model.PresetType
+import com.gw.study.gaspump.gas.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.pump.GasPump
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
 import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gas.state.BreadBoard
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.runningReduce
@@ -18,20 +24,26 @@ class GasPumpDashboard(
     gasPump: GasPump,
     gasPrice: GasPrice,
     private val engineBreadBoard: BreadBoard,
-    private val presetFactor: PresetFactor = PresetFactor()
+    private val presetGauge: PresetGauge = PresetGauge(),
+    private val scope: CoroutineScope = CoroutineScope(CoroutineName("dashboard") + Dispatchers.Default + SupervisorJob())
 ) {
 
-    private val _presetGasAmount = MutableStateFlow(0)
-    val presetGasAmount: StateFlow<Int> = _presetGasAmount.asStateFlow()
     private val gasFlow = gasPump()
 
-    val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }.onEach { gasAmount ->
-        presetFactor.checkPresetFactor(presetGasAmount = presetGasAmount.value, gasAmount = gasAmount) { changeSpeed(it) }
-    }
+    val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }
 
     val payment = gasPrice.calc(gasFlow)
 
     val gasType = engineBreadBoard.getGasType()
+
+    val presetGasAmount: StateFlow<PresetGauge.AmountInfo> = presetGauge.presetAmount
+
+    init {
+        presetGauge.getGauge(gasAmount, payment)
+            .onEach {
+                changeEngineState(it)
+            }.launchIn(scope = scope)
+    }
 
     suspend fun setGasType(gas: Gas) {
         engineBreadBoard.sendGasType(gas)
@@ -51,15 +63,24 @@ class GasPumpDashboard(
 
     fun setPresetGasAmount(expected: Int) {
         if (engineBreadBoard.getSpeed().value == Speed.Normal) {
-            _presetGasAmount.value = expected
+            presetGauge.setPreset(expected, PresetType.Payment)
         }
     }
 
-    private fun changeSpeed(normalSpeed: Boolean) {
-        if (normalSpeed) {
-            engineBreadBoard.setSpeed(Speed.Normal)
-        } else {
-            engineBreadBoard.setSpeed(Speed.Slow)
+    private suspend fun changeEngineState(gauge: Gauge) {
+        when (gauge) {
+            Gauge.Spare, Gauge.Middle -> engineBreadBoard.setSpeed(Speed.Normal)
+            Gauge.Almost -> engineBreadBoard.setSpeed(Speed.Slow)
+            Gauge.Full -> engineBreadBoard.sendLifeCycle(EngineLifeCycle.Stop)
+            else -> Unit
+        }
+    }
+
+    fun destroy() {
+        try {
+            scope.cancel()
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
         }
     }
 }

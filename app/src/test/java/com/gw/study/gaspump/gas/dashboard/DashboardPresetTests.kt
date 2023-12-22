@@ -1,26 +1,27 @@
 package com.gw.study.gaspump.gas.dashboard
 
 import com.gw.study.gaspump.assistant.factory.TestFlow
-import com.gw.study.gaspump.gas.dashboard.preset.PresetFactor
+import com.gw.study.gaspump.gas.dashboard.builder.TestDashboardBuilder
+import com.gw.study.gaspump.gas.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gas.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.pump.GasPump
 import com.gw.study.gaspump.gas.pump.engine.model.Speed
+import com.gw.study.gaspump.gas.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gas.state.BreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -30,7 +31,7 @@ private const val PRESET_GAS_AMOUNT = 4
 @RunWith(MockitoJUnitRunner::class)
 class DashboardPresetTests {
 
-    private lateinit var dashboard: GasPumpDashboard
+    private lateinit var dashboardBuilder: TestDashboardBuilder
 
     @Mock
     private lateinit var gasPump: GasPump
@@ -42,55 +43,88 @@ class DashboardPresetTests {
     private lateinit var engineBreadBoard: BreadBoard
 
     @Mock
-    private lateinit var presetFactor: PresetFactor
-
-    private val speedMutableState = MutableStateFlow(Speed.Normal)
+    private lateinit var presetGauge: PresetGauge
 
     @Before
     fun setUp() {
-        whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline))
-        whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED))
-        whenever(engineBreadBoard.getSpeed()).thenReturn(speedMutableState)
-        dashboard = GasPumpDashboard(gasPump, gasPrice, engineBreadBoard, presetFactor).apply { setPresetGasAmount(PRESET_GAS_AMOUNT) }
+        dashboardBuilder = getDashboardBuilder()
+        dashboardBuilder.addStubs(
+            GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline)) },
+            GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
+            BreadBoard::class to { whenever(engineBreadBoard.getSpeed()).thenReturn(MutableStateFlow(Speed.Normal)) },
+            PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Empty)) }
+        )
     }
 
+    private fun getDashboardBuilder(): TestDashboardBuilder =
+        TestDashboardBuilder().apply {
+            setGasPump(gasPump)
+            setGasPrice(gasPrice)
+            setEngineBreadBoard(engineBreadBoard)
+            setPresetGauge(presetGauge)
+        }
+
     @Test
-    fun whenSetPresetAmount_shouldCallPresetAmountValue() {
-        speedMutableState.value = Speed.Normal
-        Assert.assertEquals(PRESET_GAS_AMOUNT, dashboard.presetGasAmount.value)
+    fun whenSetPresetAmount_shouldCallPresetGaugeSetPreset() = runTest {
+        dashboardBuilder
+            .setScope(this)
+            .build()
+            .setPresetGasAmount(PRESET_GAS_AMOUNT)
+        verify(presetGauge).setPreset(eq(PRESET_GAS_AMOUNT), any())
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenChangeSpeedCall_withTrue_shouldCallSendSpeedWithNormal() = runTest {
-        setPresetFactorReturn(true)
-        dashboard.gasAmount.launchIn(this)
-        advanceUntilIdle()
+    fun whenPresetGaugeStateIsEmpty_shouldNotCallSendSpeed() = runTest(UnconfinedTestDispatcher()) {
+        dashboardBuilder
+            .setScope(this)
+            .build()
+        verify(engineBreadBoard, never()).setSpeed(any())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenPresetGaugeStateIsSpare_shouldCallSendSpeedWithNormal() = runTest(UnconfinedTestDispatcher()) {
+        dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Spare)) }
+            ).build()
         verify(engineBreadBoard).setSpeed(eq(Speed.Normal))
     }
 
-    // when slow then not change
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenChangeSpeedCall_withFalse_shouldCallSendSpeedWithSlow() = runTest {
-        setPresetFactorReturn(false)
-        dashboard.gasAmount.launchIn(this)
-        advanceUntilIdle()
+    fun whenPresetGaugeStateIsAlmost_shouldCallSendSpeedWithSlow() = runTest(UnconfinedTestDispatcher()) {
+        dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Almost)) }
+            ).build()
         verify(engineBreadBoard).setSpeed(eq(Speed.Slow))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenPresetGaugeStateIsFull_shouldCallSendLifeCycleWithStop() = runTest(UnconfinedTestDispatcher()) {
+        dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Full)) }
+            ).build()
+        verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Stop))
     }
 
     @Test
     fun whenEngineSpeedSlow_shouldNotChangePresetAmount() = runTest {
-        speedMutableState.value = Speed.Slow
         val expected = 10
-        dashboard.setPresetGasAmount(expected)
-        Assert.assertNotEquals(expected, dashboard.presetGasAmount.value)
-    }
-
-    private fun setPresetFactorReturn(returnValue: Boolean) {
-        doAnswer {
-            val action = it.getArgument(2) as (Boolean) -> Unit
-            action(returnValue)
-        }.whenever(presetFactor).checkPresetFactor(any(), any(), any())
+        dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Almost)) },
+                BreadBoard::class to { whenever(engineBreadBoard.getSpeed()).thenReturn(MutableStateFlow(Speed.Slow)) }
+            ).build()
+            .setPresetGasAmount(expected)
+        verify(presetGauge, never()).setPreset(any(), any())
     }
 }

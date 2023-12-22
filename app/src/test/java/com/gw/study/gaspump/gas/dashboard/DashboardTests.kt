@@ -1,6 +1,9 @@
 package com.gw.study.gaspump.gas.dashboard
 
 import com.gw.study.gaspump.assistant.factory.TestFlow
+import com.gw.study.gaspump.gas.dashboard.builder.TestDashboardBuilder
+import com.gw.study.gaspump.gas.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gas.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gas.model.Gas
 import com.gw.study.gaspump.gas.price.GasPrice
 import com.gw.study.gaspump.gas.pump.GasPump
@@ -23,9 +26,7 @@ import org.mockito.kotlin.whenever
 internal const val GAS_PRICE_EXPECTED = 2
 
 @RunWith(MockitoJUnitRunner::class)
-class DashboardInitializationTests {
-
-    private lateinit var dashboard: GasPumpDashboard
+class DashboardTests {
 
     @Mock
     private lateinit var gasPump: GasPump
@@ -36,15 +37,32 @@ class DashboardInitializationTests {
     @Mock
     private lateinit var engineBreadBoard: BreadBoard
 
+    private lateinit var dashboardBuilder: TestDashboardBuilder
+
+    @Mock
+    private lateinit var presetGauge: PresetGauge
+
     @Before
     fun setUp() {
-        whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline))
-        whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED))
-        dashboard = GasPumpDashboard(gasPump, gasPrice, engineBreadBoard)
+        dashboardBuilder = getDashboardBuilder()
+        dashboardBuilder.addStubs(
+            GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(1, Gas.Gasoline)) },
+            GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
+            PresetGauge::class to { whenever(presetGauge.getGauge(any(), any())).thenReturn(TestFlow.testFlow(1, Gauge.Empty)) }
+        )
     }
 
+    private fun getDashboardBuilder(): TestDashboardBuilder =
+        TestDashboardBuilder().apply {
+            setGasPump(gasPump)
+            setGasPrice(gasPrice)
+            setEngineBreadBoard(engineBreadBoard)
+            setPresetGauge(presetGauge)
+        }
+
     @Test
-    fun whenInitialize_shouldCallGasPumpAndGasPriceCalcAndGasType() {
+    fun whenInitialize_shouldCallGasPumpAndGasPriceCalcAndGasType() = runTest {
+        dashboardBuilder.setScope(this).build()
         verify(gasPump).invoke()
         verify(gasPrice).calc(any())
         verify(engineBreadBoard).getGasType()
@@ -54,6 +72,7 @@ class DashboardInitializationTests {
     @Test
     fun whenCollectGasAmount_shouldEmitOne() = runTest {
         var actual = 1
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.gasAmount.collect {
             actual = it
         }
@@ -65,6 +84,7 @@ class DashboardInitializationTests {
     @Test
     fun whenCollectPayment_shouldEmit() = runTest {
         var actual = 1
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.payment.collect {
             actual = it
         }
@@ -74,23 +94,27 @@ class DashboardInitializationTests {
 
     @Test
     fun whenSetGasType_shouldCallGasType() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.setGasType(Gas.Gasoline)
         verify(engineBreadBoard).sendGasType(eq(Gas.Gasoline))
     }
 
     @Test
     fun whenCallPumpStart_shouldCallSendLifeCycleWithStart() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.pumpStart()
         verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Start))
     }
     @Test
     fun whenCallPumpStop_shouldCallSendLifeCycleWithStop() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.pumpStop()
         verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Stop))
     }
 
     @Test
     fun whenCallPumpPause_shouldCallSendLifeCycleWithPause() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.pumpPause()
         verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Paused))
     }

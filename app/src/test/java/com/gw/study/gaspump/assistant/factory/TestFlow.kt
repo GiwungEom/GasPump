@@ -9,5 +9,10 @@ class TestFlow {
                 emit(data)
             }
         }
+        fun <T> testFlow(repeatCount: Int = 1, operator: () -> T) = flow {
+            repeat(repeatCount) {
+                emit(operator())
+            }
+        }
     }
 }

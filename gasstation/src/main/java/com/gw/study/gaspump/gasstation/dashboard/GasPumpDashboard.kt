@@ -26,21 +26,21 @@ class GasPumpDashboard(
     private val engineBreadBoard: BreadBoard,
     private val presetGauge: PresetGauge = PresetGauge(),
     private val scope: CoroutineScope = CoroutineScope(CoroutineName("dashboard") + Dispatchers.Default + SupervisorJob())
-) {
+) : Dashboard {
 
     private val gasFlow = gasPump()
 
-    val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }
+    override val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }
 
-    val payment = gasPrice.calc(gasFlow)
+    override val payment = gasPrice.calc(gasFlow)
 
-    val gasType = engineBreadBoard.getGasType()
+    override val gasType = engineBreadBoard.getGasType()
 
-    val presetGasAmount: StateFlow<PresetGauge.AmountInfo> = presetGauge.presetAmount
+    override val presetGasAmount: StateFlow<PresetGauge.AmountInfo> = presetGauge.presetAmount
 
-    val lifeCycle = engineBreadBoard.getLifeCycle()
+    override val lifeCycle = engineBreadBoard.getLifeCycle()
 
-    val speed = engineBreadBoard.getSpeed()
+    override val speed = engineBreadBoard.getSpeed()
 
     init {
         presetGauge.getGauge(gasAmount, payment)
@@ -49,25 +49,25 @@ class GasPumpDashboard(
             }.launchIn(scope = scope)
     }
 
-    suspend fun setGasType(gas: Gas) {
+    override suspend fun setGasType(gas: Gas) {
         if (lifeCycle.value != EngineLifeCycle.Start) {
             engineBreadBoard.sendGasType(gas)
         }
     }
 
-    suspend fun pumpStart() {
+    override suspend fun pumpStart() {
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Start)
     }
 
-    suspend fun pumpStop() {
+    override suspend fun pumpStop() {
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Stop)
     }
 
-    suspend fun pumpPause() {
+    override suspend fun pumpPause() {
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Paused)
     }
 
-    fun setPresetGasAmount(expected: Int) {
+    override fun setPresetGasAmount(expected: Int) {
         if (engineBreadBoard.getSpeed().value == Speed.Normal) {
             presetGauge.setPreset(expected, PresetType.Payment)
         }
@@ -82,7 +82,7 @@ class GasPumpDashboard(
         }
     }
 
-    fun destroy() {
+    override fun destroy() {
         try {
             scope.cancel()
         } catch (e: IllegalStateException) {

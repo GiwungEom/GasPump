@@ -1,56 +1,32 @@
 package com.gw.study.gaspump.ui.screen
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gw.study.gaspump.gasstation.dashboard.Dashboard
+import com.gw.study.gaspump.ui.architecture.viewmodel.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.zip
-import kotlinx.coroutines.launch
 
-@OptIn(DelicateCoroutinesApi::class)
 class GasPumpViewModel(
     private val dashboard: Dashboard,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
-) : ViewModel() {
-
-    private val eventChannel: Channel<GasPumpEvent> = Channel(capacity = BUFFERED)
-    fun sendEvent(event: GasPumpEvent) {
-        viewModelScope.launch(dispatcher) {
-            if (!eventChannel.isClosedForSend) {
-                ensureActive()
-                eventChannel.send(event)
-            }
-        }
+) : BaseViewModel<GasPumpEvent, GasPumpUiState>(dispatcher) {
+    init {
+        collectDashboard()
     }
 
-    private val _uiState = MutableStateFlow(GasPumpUiState())
-    val uiState: StateFlow<GasPumpUiState> = _uiState.asStateFlow()
+    override fun initializeUiState(): GasPumpUiState = GasPumpUiState()
 
-    init {
-        viewModelScope.launch(dispatcher + CoroutineName("Event Receiver")) {
-            if (!eventChannel.isClosedForReceive) {
-                for (event in eventChannel) {
-                    launch {
-                        onEventReceived(event = event)
-                    }
-                }
-            }
+    override suspend fun onEventReceived(event: GasPumpEvent) {
+        when (event) {
+            is GasPumpEvent.PumpStart -> onStartPump()
+            is GasPumpEvent.PumpStop -> onStopPump()
+            is GasPumpEvent.PumpPause -> onPausePump()
+            is GasPumpEvent.PresetInfo -> onSetPreset(event)
         }
-        collectDashboard()
     }
 
     private fun collectDashboard() {
@@ -83,18 +59,6 @@ class GasPumpViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun update(state: GasPumpUiState.() -> GasPumpUiState) {
-        _uiState.update(state)
-    }
-
-    private suspend fun onEventReceived(event: GasPumpEvent) {
-        when (event) {
-            is GasPumpEvent.PumpStart -> onStartPump()
-            is GasPumpEvent.PumpStop -> onStopPump()
-            is GasPumpEvent.PumpPause -> onPausePump()
-            is GasPumpEvent.PresetInfo -> onSetPreset(event)
-        }
-    }
 
     private fun onSetPreset(event: GasPumpEvent.PresetInfo) {
         dashboard.setPresetGasAmount(event.amount)
@@ -111,16 +75,4 @@ class GasPumpViewModel(
     private suspend fun onPausePump() {
         dashboard.pumpPause()
     }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        eventChannel.close()
-        try {
-            viewModelScope.cancel()
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
-        }
-    }
-
 }

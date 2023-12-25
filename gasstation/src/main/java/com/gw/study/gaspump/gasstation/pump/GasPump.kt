@@ -1,7 +1,7 @@
-package com.gw.study.gaspump.gasstation.gas.pump
+package com.gw.study.gaspump.gasstation.pump
 
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.pump.type.GasEngine
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.pump.type.GasEngine
 import kotlinx.coroutines.flow.Flow
 
 interface GasPump {

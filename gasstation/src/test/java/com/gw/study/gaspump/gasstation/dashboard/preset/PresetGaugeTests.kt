@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gasstation.gas.dashboard.preset
+package com.gw.study.gaspump.gasstation.dashboard.preset
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.gas.dashboard.preset.model.PresetType
-import com.gw.study.gaspump.gasstation.gas.dashboard.preset.state.Gauge
+import com.gw.study.gaspump.gasstation.dashboard.preset.model.PresetType
+import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList

@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gasstation.gas.price
+package com.gw.study.gaspump.gasstation.price
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.price.model.Price
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.price.model.Price
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch

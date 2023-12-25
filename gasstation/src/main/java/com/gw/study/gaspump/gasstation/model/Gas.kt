@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gasstation.gas.model
+package com.gw.study.gaspump.gasstation.model
 
 sealed interface Gas {
     data object Unknown : Gas

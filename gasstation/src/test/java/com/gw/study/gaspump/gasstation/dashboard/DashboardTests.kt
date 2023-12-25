@@ -1,14 +1,14 @@
-package com.gw.study.gaspump.gasstation.gas.dashboard
+package com.gw.study.gaspump.gasstation.dashboard
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.gas.dashboard.builder.TestDashboardBuilder
-import com.gw.study.gaspump.gasstation.gas.dashboard.preset.PresetGauge
-import com.gw.study.gaspump.gasstation.gas.dashboard.preset.state.Gauge
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.price.GasPrice
-import com.gw.study.gaspump.gasstation.gas.pump.GasPump
-import com.gw.study.gaspump.gasstation.gas.pump.engine.state.EngineLifeCycle
-import com.gw.study.gaspump.gasstation.gas.state.BreadBoard
+import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
+import com.gw.study.gaspump.gasstation.dashboard.builder.TestDashboardBuilder
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.price.GasPrice
+import com.gw.study.gaspump.gasstation.pump.GasPump
+import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
+import com.gw.study.gaspump.gasstation.state.BreadBoard
 import com.gw.study.gaspump.gasstation.scope.CoroutineTestScopeFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

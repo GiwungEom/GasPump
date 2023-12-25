@@ -1,10 +1,10 @@
-package com.gw.study.gaspump.gasstation.gas.pump.type
+package com.gw.study.gaspump.gasstation.pump.type
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
 import com.gw.study.gaspump.gasstation.exeption.ReachedLineException
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.pump.engine.LoopEngine
-import com.gw.study.gaspump.gasstation.gas.state.EngineBreadBoard
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.pump.engine.LoopEngine
+import com.gw.study.gaspump.gasstation.state.EngineBreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

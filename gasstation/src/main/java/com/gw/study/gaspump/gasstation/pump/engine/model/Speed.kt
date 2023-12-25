@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gasstation.gas.pump.engine.model
+package com.gw.study.gaspump.gasstation.pump.engine.model
 
 enum class Speed {
     Normal,

@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gasstation.gas.dashboard.preset.model
+package com.gw.study.gaspump.gasstation.dashboard.preset.model
 
 enum class PresetType {
     Payment,

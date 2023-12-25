@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gasstation.gas.pump
+package com.gw.study.gaspump.gasstation.pump
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.pump.type.PowerGasEngine
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.pump.type.PowerGasEngine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

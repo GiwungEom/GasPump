@@ -1,10 +1,10 @@
-package com.gw.study.gaspump.gasstation.gas.dashboard.builder
+package com.gw.study.gaspump.gasstation.dashboard.builder
 
-import com.gw.study.gaspump.gasstation.gas.dashboard.GasPumpDashboard
-import com.gw.study.gaspump.gasstation.gas.dashboard.preset.PresetGauge
-import com.gw.study.gaspump.gasstation.gas.price.GasPrice
-import com.gw.study.gaspump.gasstation.gas.pump.GasPump
-import com.gw.study.gaspump.gasstation.gas.state.BreadBoard
+import com.gw.study.gaspump.gasstation.dashboard.GasPumpDashboard
+import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gasstation.price.GasPrice
+import com.gw.study.gaspump.gasstation.pump.GasPump
+import com.gw.study.gaspump.gasstation.state.BreadBoard
 import kotlinx.coroutines.CoroutineScope
 import kotlin.reflect.KClass
 

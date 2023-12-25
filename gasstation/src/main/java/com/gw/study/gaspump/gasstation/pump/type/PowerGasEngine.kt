@@ -1,8 +1,8 @@
-package com.gw.study.gaspump.gasstation.gas.pump.type
+package com.gw.study.gaspump.gasstation.pump.type
 
-import com.gw.study.gaspump.gasstation.gas.model.Gas
-import com.gw.study.gaspump.gasstation.gas.pump.engine.Engine
-import com.gw.study.gaspump.gasstation.gas.pump.type.state.ReceiveGasEngineState
+import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.pump.engine.Engine
+import com.gw.study.gaspump.gasstation.pump.type.state.ReceiveGasEngineState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map

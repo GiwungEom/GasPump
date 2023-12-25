@@ -1,4 +1,4 @@
-package com.gw.study.gaspump.gasstation.gas.dashboard.preset.state
+package com.gw.study.gaspump.gasstation.dashboard.preset.state
 
 enum class Gauge {
     Empty,

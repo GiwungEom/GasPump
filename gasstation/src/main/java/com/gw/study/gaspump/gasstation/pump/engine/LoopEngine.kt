@@ -1,9 +1,9 @@
-package com.gw.study.gaspump.gasstation.gas.pump.engine
+package com.gw.study.gaspump.gasstation.pump.engine
 
-import com.gw.study.gaspump.gasstation.gas.pump.engine.state.EngineLifeCycle
-import com.gw.study.gaspump.gasstation.gas.pump.engine.state.ReceiveEngineState
-import com.gw.study.gaspump.gasstation.gas.pump.engine.model.Speed
-import com.gw.study.gaspump.gasstation.gas.pump.engine.model.SpeedConfig
+import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
+import com.gw.study.gaspump.gasstation.pump.engine.state.ReceiveEngineState
+import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
+import com.gw.study.gaspump.gasstation.pump.engine.model.SpeedConfig
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive

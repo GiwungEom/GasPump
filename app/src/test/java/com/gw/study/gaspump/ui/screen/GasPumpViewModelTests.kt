@@ -98,12 +98,12 @@ class GasPumpViewModelTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenSetPresetCalled_shouldCallDashboardSetPreset() = runTest {
-        val expectedAmount = 10
+    fun whenSendEventSetPreset_shouldCallDashboardSetPreset() = runTest {
+        val expectedPreset = PresetGauge.AmountInfo(amount = 10, type = PresetType.Payment)
         val viewModel = viewModelBuilder.build()
-        viewModel.sendEvent(GasPumpEvent.PresetInfo(amount = 10, type = PresetType.Payment))
+        viewModel.sendEvent(GasPumpEvent.PresetInfoSet(expectedPreset))
         advanceUntilIdle()
-        verify(dashboard).setPresetGasAmount(eq(expectedAmount))
+        verify(dashboard).setPresetGasAmount(eq(expectedPreset.amount))
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -25,7 +25,7 @@ class GasPumpViewModel(
             is GasPumpEvent.PumpStart -> onStartPump()
             is GasPumpEvent.PumpStop -> onStopPump()
             is GasPumpEvent.PumpPause -> onPausePump()
-            is GasPumpEvent.PresetInfo -> onSetPreset(event)
+            is GasPumpEvent.PresetInfoSet -> onSetPreset(event)
         }
     }
 
@@ -59,9 +59,8 @@ class GasPumpViewModel(
             .launchIn(viewModelScope)
     }
 
-
-    private fun onSetPreset(event: GasPumpEvent.PresetInfo) {
-        dashboard.setPresetGasAmount(event.amount)
+    private fun onSetPreset(event: GasPumpEvent.PresetInfoSet) {
+        dashboard.setPresetGasAmount(event.preset.amount)
     }
 
     private suspend fun onStartPump() {

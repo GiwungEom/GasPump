@@ -1,6 +1,6 @@
 package com.gw.study.gaspump.gasstation.pump.engine
 
-import com.gw.study.gaspump.gasstation.exeption.ReachedLineException
+import com.gw.study.gaspump.gasstation.exeption.LineReachedException
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.pump.engine.state.ReceiveEngineState
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
@@ -45,11 +45,11 @@ class LoopEngineTests {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    @Test(expected = ReachedLineException::class)
+    @Test(expected = LineReachedException::class)
     fun whenEngineStart_shouldFlowFuel() = runTest(UnconfinedTestDispatcher()) {
         engineLifeCycleState.value = EngineLifeCycle.Start
         engine.invoke().collect {
-            throw ReachedLineException()
+            throw LineReachedException()
         }
     }
 

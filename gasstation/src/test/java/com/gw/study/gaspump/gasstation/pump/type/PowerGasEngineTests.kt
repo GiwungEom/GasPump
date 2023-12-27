@@ -1,7 +1,7 @@
 package com.gw.study.gaspump.gasstation.pump.type
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.exeption.ReachedLineException
+import com.gw.study.gaspump.gasstation.exeption.LineReachedException
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.pump.engine.LoopEngine
 import com.gw.study.gaspump.gasstation.state.EngineBreadBoard
@@ -48,7 +48,7 @@ class PowerGasEngineTests {
     fun whenCollect_withDifferentGasType_shouldNotEmitGas() = runTest {
         whenever(receiveState.getGasType()).thenReturn(MutableStateFlow(Gas.Diesel))
         gasEngine().collect {
-            throw ReachedLineException()
+            throw LineReachedException()
         }
     }
 }

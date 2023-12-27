@@ -1,7 +1,7 @@
 package com.gw.study.gaspump.gasstation.dashboard
 
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
-import com.gw.study.gaspump.gasstation.dashboard.builder.TestDashboardBuilder
+import com.gw.study.gaspump.gasstation.dashboard.builder.DashboardBuilder
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gasstation.model.Gas
@@ -29,9 +29,9 @@ import org.mockito.kotlin.whenever
 private const val PRESET_GAS_AMOUNT = 4
 
 @RunWith(MockitoJUnitRunner::class)
-class DashboardPresetTests {
+class GasPumpDashboardPresetTests {
 
-    private lateinit var dashboardBuilder: TestDashboardBuilder
+    private lateinit var dashboardBuilder: DashboardBuilder
 
     @Mock
     private lateinit var gasPump: GasPump
@@ -56,8 +56,8 @@ class DashboardPresetTests {
         )
     }
 
-    private fun getDashboardBuilder(): TestDashboardBuilder =
-        TestDashboardBuilder().apply {
+    private fun getDashboardBuilder(): DashboardBuilder =
+        DashboardBuilder().apply {
             setGasPump(gasPump)
             setGasPrice(gasPrice)
             setEngineBreadBoard(engineBreadBoard)

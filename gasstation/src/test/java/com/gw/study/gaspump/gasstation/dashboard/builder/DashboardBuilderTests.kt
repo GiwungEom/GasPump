@@ -22,7 +22,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class TestDashboardBuilderTests {
+class DashboardBuilderTests {
 
     @Mock
     private lateinit var gasPump: GasPump
@@ -35,7 +35,7 @@ class TestDashboardBuilderTests {
 
     @Test(expected = UninitializedPropertyAccessException::class)
     fun whenBuildCalled_withoutDependencies_shouldThrowNotImplementedException() {
-        TestDashboardBuilder().build()
+        DashboardBuilder().build()
     }
 
     @Test
@@ -57,8 +57,8 @@ class TestDashboardBuilderTests {
         Assert.assertEquals(expected, dashboard.payment.first())
     }
 
-    private fun getPresetBuilder(): TestDashboardBuilder =
-        TestDashboardBuilder().apply {
+    private fun getPresetBuilder(): DashboardBuilder =
+        DashboardBuilder().apply {
             setGasPump(gasPump)
             setGasPrice(gasPrice)
             setEngineBreadBoard(engineBreadBoard)

@@ -13,7 +13,7 @@ typealias Stub = () -> Unit
 /**
  * Dashboard 의존성 객체 및 stub 관리 간소화
  */
-class TestDashboardBuilder {
+class DashboardBuilder {
 
     private val stubs: MutableMap<KClass<out Any>, () -> Unit> = mutableMapOf()
 
@@ -23,32 +23,32 @@ class TestDashboardBuilder {
     private lateinit var presetGauge: PresetGauge
     private lateinit var scope: CoroutineScope
 
-    fun setGasPump(gasPump: GasPump): TestDashboardBuilder {
+    fun setGasPump(gasPump: GasPump): DashboardBuilder {
         this.gasPump = gasPump
         return this
     }
 
-    fun setGasPrice(gasPrice: GasPrice): TestDashboardBuilder {
+    fun setGasPrice(gasPrice: GasPrice): DashboardBuilder {
         this.gasPrice = gasPrice
         return this
     }
 
-    fun setEngineBreadBoard(engineBreadBoard: BreadBoard): TestDashboardBuilder {
+    fun setEngineBreadBoard(engineBreadBoard: BreadBoard): DashboardBuilder {
         this.engineBreadBoard = engineBreadBoard
         return this
     }
 
-    fun setPresetGauge(presetGauge: PresetGauge): TestDashboardBuilder {
+    fun setPresetGauge(presetGauge: PresetGauge): DashboardBuilder {
         this.presetGauge = presetGauge
         return this
     }
 
-    fun setScope(scope: CoroutineScope): TestDashboardBuilder {
+    fun setScope(scope: CoroutineScope): DashboardBuilder {
         this.scope = scope
         return this
     }
 
-    fun addStubs(vararg stubs: Pair<KClass<out Any>, Stub>): TestDashboardBuilder {
+    fun addStubs(vararg stubs: Pair<KClass<out Any>, Stub>): DashboardBuilder {
         this.stubs.putAll(stubs.toMap())
         return this
     }

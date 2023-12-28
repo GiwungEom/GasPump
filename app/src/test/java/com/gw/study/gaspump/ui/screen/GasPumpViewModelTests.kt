@@ -80,6 +80,15 @@ class GasPumpViewModelTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun whenSendEventWithGasTypeSelect_withGasoline_shouldCallDashboardSetGasType() = runTest {
+        val viewModel = viewModelBuilder.build()
+        viewModel.sendEvent(GasPumpEvent.GasTypeSelect(Gas.Gasoline))
+        advanceUntilIdle()
+        verify(dashboard).setGasType(eq(Gas.Gasoline))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun whenSendEventWithGasPumpStop_shouldCallDashboardPumpStop() = runTest {
         val viewModel = viewModelBuilder.build()
         viewModel.sendEvent(GasPumpEvent.PumpStop)

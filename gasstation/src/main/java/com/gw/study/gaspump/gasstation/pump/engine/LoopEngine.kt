@@ -39,17 +39,11 @@ class LoopEngine(
 
     private val fEngine: SharedFlow<Unit> = flow {
         while (true) {
-//        var count = 0
-//         repeat(10) {
-//            print("ensureActive = ${currentCoroutineContext().ensureActive()}")
-//            println("${count++} currentCoroutineContext().isActive = ${currentCoroutineContext().isActive }")
             currentCoroutineContext().ensureActive()
             emit(Unit)
             delay(getSpeedFrame())
         }
-    }.onStart { println("engine onStart") }
-    .onCompletion { println("engine Completion") }
-    .shareIn(
+    }.shareIn(
         scope = scope,
         started = SharingStarted.WhileSubscribed(0),
         replay = 0

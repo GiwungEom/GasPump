@@ -15,6 +15,6 @@ class CumulateGasPrice : GasPrice {
 
     override fun calc(gas: Flow<Gas>): Flow<Int> =
         gas.runningFold(0) { accumulator, fuel ->
-            accumulator + prices.getValue(fuel).pricePerLiter
+            accumulator + (prices[fuel]?.pricePerLiter ?: 0)
         }
 }

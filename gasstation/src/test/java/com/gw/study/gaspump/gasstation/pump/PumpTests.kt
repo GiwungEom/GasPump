@@ -5,31 +5,33 @@ import com.gw.study.gaspump.gasstation.pump.engine.LoopEngine
 import com.gw.study.gaspump.gasstation.pump.engine.model.SpeedConfig
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.pump.type.PowerGasEngine
+import com.gw.study.gaspump.gasstation.scope.CoroutineTestScopeFactory
 import com.gw.study.gaspump.gasstation.state.BreadBoard
 import com.gw.study.gaspump.gasstation.state.EngineBreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(MockitoJUnitRunner::class)
 class PumpTests {
 
+    private lateinit var testScope: TestScope
     private lateinit var breadBoard: BreadBoard
     private lateinit var gasPump: GasPump
     private val speedConfig: SpeedConfig = SpeedConfig(50L, 100L)
 
     @Before
     fun setUp() {
+        testScope = CoroutineTestScopeFactory.testScope()
         breadBoard = EngineBreadBoard()
         val loopEngine = LoopEngine(
             receiveState = breadBoard,
-            speedConfig = speedConfig
+            speedConfig = speedConfig,
+            scope = testScope
         )
         gasPump = OnePassageGasPump(
             PowerGasEngine(
@@ -52,7 +54,7 @@ class PumpTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenUnknownGasType_shouldNotEmit() = runTest {
+    fun whenUnknownGasType_shouldNotEmit() = runTest(testScope.testScheduler) {
         var actual = true
         breadBoard.sendLifeCycle(EngineLifeCycle.Start)
         backgroundScope.launch {
@@ -66,7 +68,7 @@ class PumpTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenGasTypeDiesel_shouldEmitDiesel() = runTest {
+    fun whenGasTypeDiesel_shouldEmitDiesel() = runTest(testScope.testScheduler) {
         val expected = Gas.Diesel
         var actual: Gas = Gas.Unknown
         breadBoard.sendGasType(Gas.Diesel)
@@ -78,5 +80,6 @@ class PumpTests {
         }
         advanceTimeBy(speedConfig.normal)
         Assert.assertEquals(expected, actual)
+        // 에러를 고치는 unit test를 작성해보자
     }
 }

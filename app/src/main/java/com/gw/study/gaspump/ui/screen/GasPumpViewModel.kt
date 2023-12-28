@@ -26,6 +26,7 @@ class GasPumpViewModel(
             is GasPumpEvent.PumpStop -> onStopPump()
             is GasPumpEvent.PumpPause -> onPausePump()
             is GasPumpEvent.PresetInfoSet -> onSetPreset(event)
+            is GasPumpEvent.GasTypeSelect -> onSetGasType(event)
         }
     }
 
@@ -63,6 +64,10 @@ class GasPumpViewModel(
         dashboard.setPresetGasAmount(event.preset.amount)
     }
 
+    private suspend fun onSetGasType(event: GasPumpEvent.GasTypeSelect) {
+        dashboard.setGasType(event.gasType)
+    }
+
     private suspend fun onStartPump() {
         dashboard.pumpStart()
     }
@@ -73,5 +78,10 @@ class GasPumpViewModel(
 
     private suspend fun onPausePump() {
         dashboard.pumpPause()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        dashboard.destroy()
     }
 }

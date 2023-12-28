@@ -74,14 +74,14 @@ class GasPumpDashboardTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenCollectGasAmount_shouldEmitOne() = runTest {
-        var actual = 1
+    fun whenCollectGasAmount_shouldEmitZero() = runTest {
+        var actual = 0
         val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.gasAmount.collect {
             actual = it
         }
         advanceUntilIdle()
-        Assert.assertEquals(1, actual)
+        Assert.assertEquals(0, actual)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -30,7 +30,7 @@ class GasPumpDashboard(
 
     private val gasFlow = gasPump()
 
-    override val gasAmount = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }
+    override val gasAmount = gasFlow.map { 0 }.runningReduce { acc, _ -> acc + 1 }
 
     override val payment = gasPrice.calc(gasFlow)
 
@@ -44,9 +44,8 @@ class GasPumpDashboard(
 
     init {
         presetGauge.getGauge(gasAmount, payment)
-            .onEach {
-                changeEngineState(it)
-            }.launchIn(scope = scope)
+            .onEach { changeEngineState(it) }
+            .launchIn(scope = scope)
     }
 
     override suspend fun setGasType(gas: Gas) {

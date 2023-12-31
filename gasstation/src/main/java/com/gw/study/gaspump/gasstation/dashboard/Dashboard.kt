@@ -2,6 +2,7 @@ package com.gw.study.gaspump.gasstation.dashboard
 
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.model.Gas
+import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,8 @@ interface Dashboard {
     val payment: Flow<Int>
 
     val gasType: Flow<Gas>
+
+    val gasPrices: Map<Gas, Price>
 
     val presetGasAmount: StateFlow<PresetGauge.AmountInfo>
 

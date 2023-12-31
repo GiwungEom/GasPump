@@ -16,6 +16,7 @@ class GasPumpViewModel(
 ) : BaseViewModel<GasPumpEvent, GasPumpUiState>(dispatcher) {
     init {
         collectDashboard()
+        update { onGasPricesChanged(dashboard.gasPrices) }
     }
 
     override fun initializeUiState(): GasPumpUiState = GasPumpUiState()

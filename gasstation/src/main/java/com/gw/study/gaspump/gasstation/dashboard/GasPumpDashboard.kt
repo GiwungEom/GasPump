@@ -5,6 +5,7 @@ import com.gw.study.gaspump.gasstation.dashboard.preset.model.PresetType
 import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.GasPrice
+import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.GasPump
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
@@ -35,6 +36,8 @@ class GasPumpDashboard(
     override val payment = gasPrice.calc(gasFlow)
 
     override val gasType = engineBreadBoard.getGasType()
+
+    override val gasPrices: Map<Gas, Price> = gasPrice.prices
 
     override val presetGasAmount: StateFlow<PresetGauge.AmountInfo> = presetGauge.presetAmount
 

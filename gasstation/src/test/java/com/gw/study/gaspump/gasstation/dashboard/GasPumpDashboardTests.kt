@@ -6,6 +6,7 @@ import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.GasPrice
+import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.GasPump
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.scope.CoroutineTestScopeFactory
@@ -131,5 +132,16 @@ class GasPumpDashboardTests {
             .build()
             .destroy()
         Assert.assertFalse(scope.isActive)
+    }
+
+    @Test
+    fun whenGetGasPrices_shouldBeSizeLargerThanZero() = runTest {
+        val dashboard = dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                Price::class to { whenever(gasPrice.prices).thenReturn(mutableMapOf(Gas.Gasoline to Price(Gas.Gasoline, 50))) },
+            ).build()
+
+        Assert.assertTrue(dashboard.gasPrices.isNotEmpty())
     }
 }

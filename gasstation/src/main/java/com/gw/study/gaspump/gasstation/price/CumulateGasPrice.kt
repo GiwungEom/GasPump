@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.runningFold
 class CumulateGasPrice : GasPrice {
 
     private var _prices: MutableMap<Gas, Price> = LinkedHashMap()
-    val prices: Map<Gas, Price> = _prices
+    override val prices: Map<Gas, Price> = _prices
+
     override fun addPrice(price: Price) {
         _prices[price.gasType] = price
     }

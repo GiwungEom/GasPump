@@ -5,6 +5,7 @@ import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.dashboard.preset.model.PresetType
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.GasPrice
+import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.GasPump
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
@@ -48,6 +49,7 @@ class GasPumpViewModelTests {
             addStub(
                 GasPump::class to { whenever(dashboard.gasAmount).thenReturn(TestFlow.testFlow(data = 1)) },
                 GasPrice::class to { whenever(dashboard.payment).thenReturn(TestFlow.testFlow(data = 1)) },
+                Price::class to { whenever(dashboard.gasPrices).thenReturn(emptyMap()) },
                 EngineLifeCycle::class to { whenever(dashboard.lifeCycle).thenReturn(TestFlow.testFlow(data = EngineLifeCycle.Create)) },
                 Speed::class to { whenever(dashboard.speed).thenReturn(TestFlow.testFlow(data = Speed.Normal)) },
                 PresetGauge::class to { whenever(dashboard.presetGasAmount).thenReturn(MutableStateFlow(PresetGauge.AmountInfo())) },
@@ -67,6 +69,7 @@ class GasPumpViewModelTests {
         verify(dashboard).speed
         verify(dashboard).presetGasAmount
         verify(dashboard).gasType
+        verify(dashboard).gasPrices
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

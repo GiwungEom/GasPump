@@ -1,7 +1,6 @@
 package com.gw.study.gaspump.ui.screen
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -22,6 +21,10 @@ import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.tag.TestTag
+import com.gw.study.gaspump.ui.screen.data.screen.GasPumpScreenData.GasNames
+import com.gw.study.gaspump.ui.screen.model.GasName
+import com.gw.study.gaspump.ui.theme.GasPumpTheme
+
 
 @Composable
 fun GasPumpApp(
@@ -31,6 +34,7 @@ fun GasPumpApp(
     val gasPumpState by viewModel.uiState.collectAsStateWithLifecycle()
     GasPumpScreen(
         uiState = gasPumpState,
+        gasNames = GasNames,
         onLifeCycleChanged = { lifeCycle: EngineLifeCycle ->
             viewModel.sendEvent(
                 when (lifeCycle) {
@@ -58,6 +62,7 @@ fun GasPumpApp(
 @Composable
 fun GasPumpScreen(
     uiState: GasPumpUiState,
+    gasNames: List<GasName>,
     onLifeCycleChanged: (EngineLifeCycle) -> Unit,
     presetValueInput: (String) -> Unit,
     onGasSelected: (Gas) -> Unit,
@@ -75,7 +80,8 @@ fun GasPumpScreen(
 
         GasPumpControl(
             uiState.presetInfo,
-            uiState.gasType.toString(),
+            gasNames,
+            uiState.gasType,
             uiState.lifeCycle,
             onLifeCycleChanged,
             presetValueInput,
@@ -105,16 +111,15 @@ fun GasPumpInfo(
             modifier = Modifier.testTag(TestTag.PAYMENT),
             text = payment
         )
-        Row {
-            gasPrices.forEach { (_, price) ->
-                GasPrice(price)
-            }
+
+        gasPrices.forEach { (_, price) ->
+            GasPriceView(price)
         }
     }
 }
 
 @Composable
-fun GasPrice(
+fun GasPriceView(
     price: Price
 ) {
     Column(
@@ -129,11 +134,12 @@ fun GasPrice(
 @Composable
 fun GasPumpControl(
     presetInfo: PresetGauge.AmountInfo,
-    gasType: String,
+    gasNames: List<GasName>,
+    gasType: Gas,
     lifeCycle: EngineLifeCycle,
-    lifeCycleButtonClick: (EngineLifeCycle) -> Unit,
-    presetValueChanged: (String) -> Unit,
-    gasTypeChanged: (Gas) -> Unit,
+    onLifeCycleChanged: (EngineLifeCycle) -> Unit,
+    onPresetValueChanged: (String) -> Unit,
+    onGasTypeChanged: (Gas) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -142,29 +148,28 @@ fun GasPumpControl(
             value = presetInfo.amount.toString(),
             onValueChange = { }
         )
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = stringResource(id = R.string.gasoline))
+
+        gasNames.forEach { gasName ->
+            Button(
+                onClick = { onGasTypeChanged(gasName.gas) },
+                enabled = run {
+                    if (gasType == gasName.gas) true else lifeCycle != EngineLifeCycle.Start
+                }
+            ) {
+                Text(text = stringResource(id = gasName.resID))
+            }
         }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = stringResource(id = R.string.diesel))
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = stringResource(id = R.string.premium))
-        }
+
         if (lifeCycle != EngineLifeCycle.Start) {
-            Button(onClick = {
-                lifeCycleButtonClick(EngineLifeCycle.Start)
-            }) {
+            Button(onClick = { onLifeCycleChanged(EngineLifeCycle.Start) }) {
                 Text(text = stringResource(id = R.string.start))
             }
         } else {
-            Button(onClick = {
-                lifeCycleButtonClick(EngineLifeCycle.Stop)
-            }) {
+            Button(onClick = { onLifeCycleChanged(EngineLifeCycle.Stop) }) {
                 Text(text = stringResource(id = R.string.stop))
             }
         }
-        Text(text = gasType)
+        Text(text = gasType.toString())
         Text(text = lifeCycle.name)
     }
 }
@@ -179,10 +184,13 @@ fun GasPumpSpeed(
 @Preview
 @Composable
 fun GasPumpScreenPreview() {
-    GasPumpScreen(
-        uiState = GasPumpUiState(),
-        onLifeCycleChanged = {},
-        presetValueInput = {},
-        onGasSelected = {}
-    )
+    GasPumpTheme {
+        GasPumpScreen(
+            uiState = GasPumpUiState(),
+            emptyList(),
+            onLifeCycleChanged = {},
+            presetValueInput = {},
+            onGasSelected = {}
+        )
+    }
 }

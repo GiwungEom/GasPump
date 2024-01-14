@@ -94,6 +94,10 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    // for instrumentation mockito
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito-inline:2.28.3'
+    androidTestImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
 }
 
 // Allow references to generated code

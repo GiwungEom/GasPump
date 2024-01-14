@@ -112,20 +112,16 @@ fun GasPumpScreen(
             speed = uiState.speed
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            GasPumpControl(
-                presetInfo = uiState.presetInfo,
-                gasNames = gasNames,
-                gasType = uiState.gasType,
-                lifeCycle = uiState.lifeCycle,
-                onLifeCycleChanged = onLifeCycleChanged,
-                onPresetValueChanged = presetValueInput,
-                onGasTypeChanged = onGasSelected,
-                modifier = Modifier.weight(0.7f)
-            )
-        }
+        GasPumpControl(
+            presetInfo = uiState.presetInfo,
+            gasNames = gasNames,
+            gasType = uiState.gasType,
+            lifeCycle = uiState.lifeCycle,
+            onLifeCycleChanged = onLifeCycleChanged,
+            onPresetValueChanged = presetValueInput,
+            onGasTypeChanged = onGasSelected,
+            modifier = Modifier.weight(0.7f)
+        )
     }
 }
 

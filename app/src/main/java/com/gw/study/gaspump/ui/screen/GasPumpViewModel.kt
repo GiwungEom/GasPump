@@ -1,18 +1,22 @@
 package com.gw.study.gaspump.ui.screen
 
 import androidx.lifecycle.viewModelScope
+import com.gw.study.gaspump.di.coroutine.DefaultDispatcher
 import com.gw.study.gaspump.gasstation.dashboard.Dashboard
 import com.gw.study.gaspump.ui.architecture.viewmodel.BaseViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.zip
+import javax.inject.Inject
 
-class GasPumpViewModel(
+@HiltViewModel
+class GasPumpViewModel @Inject constructor(
     private val dashboard: Dashboard,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    @DefaultDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : BaseViewModel<GasPumpEvent, GasPumpUiState>(dispatcher) {
     init {
         collectDashboard()

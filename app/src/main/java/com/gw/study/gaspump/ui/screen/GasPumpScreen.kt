@@ -166,7 +166,8 @@ fun GasPumpInfo(
                     .weight(1f)
                     .padding(start = 7.dp, end = 7.dp, bottom = 15.dp),
                 title = stringResource(R.string.selected_gas_title),
-                content = gasType.toString()
+                content = gasType.toString(),
+                testTag = TestTag.GAS_TYPE
             )
             GasInfoView(
                 modifier = Modifier

@@ -24,7 +24,6 @@ import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.tag.TestTag
 import com.gw.study.gaspump.ui.screen.GasPumpControl
 import com.gw.study.gaspump.ui.screen.GasPumpInfo
-import com.gw.study.gaspump.ui.screen.GasPumpSpeed
 import com.gw.study.gaspump.ui.screen.data.screen.GasPumpScreenData
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +44,10 @@ class GasPumpScreenTests {
             GasPumpInfo(
                 gasAmount = "0",
                 payment = "0",
-                gasPrices = prices
+                gasPrices = prices,
+                gasType = Gas.Unknown,
+                lifeCycle = EngineLifeCycle.Create,
+                speed = Speed.Normal
             )
         }
 
@@ -54,6 +56,7 @@ class GasPumpScreenTests {
         rule.onNodeWithText(prices[Gas.Gasoline]?.pricePerLiter.toString()).assertExists()
         rule.onNodeWithText(prices[Gas.Diesel]?.pricePerLiter.toString()).assertExists()
         rule.onNodeWithText(prices[Gas.Premium]?.pricePerLiter.toString()).assertExists()
+        rule.onNodeWithText(Speed.Normal.name).assertExists()
     }
 
     @Test
@@ -73,20 +76,11 @@ class GasPumpScreenTests {
         val textDiesel =  R.string.diesel
         val textPremium = R.string.premium
         val textStart = R.string.start
-        rule.onNodeWithTag(TestTag.PRESET).assert(hasText("0"))
+        rule.onNodeWithTag(TestTag.PRESET).assert(hasText(R.string.preset_placeholder))
         rule.onNode(hasClickAction() and hasText(textGasoline)).assertExists()
         rule.onNode(hasClickAction() and hasText(textDiesel)).assertExists()
         rule.onNode(hasClickAction() and hasText(textPremium)).assertExists()
         rule.onNode(hasClickAction() and hasText(textStart)).assertExists()
-        rule.onNodeWithText(Gas.Unknown.toString()).assertExists()
-    }
-
-    @Test
-    fun whenGasPumpSpeedIsVisible_shouldShowSpeed() {
-        rule.setContent {
-            GasPumpSpeed(speed = Speed.Normal)
-        }
-        rule.onNodeWithText(Speed.Normal.name).assertExists()
     }
 
     @Test

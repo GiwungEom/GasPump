@@ -1,5 +1,6 @@
 package com.gw.study.gaspump.di
 
+import com.gw.study.gaspump.di.coroutine.DashboardScope
 import com.gw.study.gaspump.gasstation.dashboard.Dashboard
 import com.gw.study.gaspump.gasstation.dashboard.GasPumpDashboard
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
@@ -10,7 +11,6 @@ import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.GasPump
 import com.gw.study.gaspump.gasstation.pump.OnePassageGasPump
 import com.gw.study.gaspump.gasstation.pump.engine.Engine
-import com.gw.study.gaspump.gasstation.pump.engine.LoopEngine
 import com.gw.study.gaspump.gasstation.pump.engine.state.ReceiveEngineState
 import com.gw.study.gaspump.gasstation.pump.type.GasEngine
 import com.gw.study.gaspump.gasstation.pump.type.PowerGasEngine
@@ -22,6 +22,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.CoroutineScope
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -41,16 +42,6 @@ class GasStationModule {
     @Provides
     fun providesReceiveGasEngine(breadBoard: BreadBoard): ReceiveGasEngineState {
         return breadBoard
-    }
-
-    @ViewModelScoped
-    @Provides
-    fun providesEngine(
-        engineState: ReceiveEngineState
-    ): Engine {
-        return LoopEngine(
-            receiveState = engineState
-        )
     }
 
     @GasolineGasEngine
@@ -144,13 +135,15 @@ class GasStationModule {
         gasPump: GasPump,
         gasPrice: GasPrice,
         presetGauge: PresetGauge,
-        breadBoard: BreadBoard
+        breadBoard: BreadBoard,
+        @DashboardScope coroutineScope: CoroutineScope
     ): Dashboard {
         return GasPumpDashboard(
             gasPump = gasPump,
             gasPrice = gasPrice,
             presetGauge = presetGauge,
-            engineBreadBoard = breadBoard
+            engineBreadBoard = breadBoard,
+            scope = coroutineScope
         )
     }
 }

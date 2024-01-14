@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
@@ -12,11 +13,19 @@ import kotlinx.coroutines.SupervisorJob
 @InstallIn(SingletonComponent::class)
 class ScopeModule {
 
+    @DashboardScope
     @Provides
-    fun providesCoroutineScope(
+    fun providesDashboardCoroutineScope(
         @DefaultDispatcher dispatcher: CoroutineDispatcher
     ): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + dispatcher)
+        return CoroutineScope(CoroutineName("dashboard") + SupervisorJob() + dispatcher)
     }
 
+    @EngineScope
+    @Provides
+    fun providesEngineCoroutineScope(
+        @DefaultDispatcher dispatcher: CoroutineDispatcher
+    ): CoroutineScope {
+        return CoroutineScope(CoroutineName("engine") + SupervisorJob() + dispatcher)
+    }
 }

@@ -174,7 +174,8 @@ fun GasPumpInfo(
                     .weight(1f)
                     .padding(start = 7.dp, end = 7.dp, bottom = 15.dp),
                 title = stringResource(R.string.progress_title),
-                content = lifeCycle.name
+                content = lifeCycle.name,
+                testTag = TestTag.PROGRESS
             )
             GasInfoView(
                 modifier = Modifier
@@ -326,20 +327,20 @@ fun GasPumpControl(
                     )
                 }
             ) {
-                if (lifeCycle != EngineLifeCycle.Start) {
+                if (lifeCycle == EngineLifeCycle.Start) {
+                    Button(
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.card_normal_padding)),
+                        onClick = { onLifeCycleChanged(EngineLifeCycle.Stop) })
+                    {
+                        Text(text = stringResource(id = R.string.stop))
+                    }
+                } else {
                     Button(
                         modifier = Modifier.padding(dimensionResource(id = R.dimen.card_normal_padding)),
                         onClick = { onLifeCycleChanged(EngineLifeCycle.Start) },
                         enabled = gasType != Gas.Unknown
                     ) {
                         Text(text = stringResource(id = R.string.start))
-                    }
-                } else {
-                    Button(
-                        modifier = Modifier.padding(dimensionResource(id = R.dimen.card_normal_padding)),
-                        onClick = { onLifeCycleChanged(EngineLifeCycle.Stop) })
-                    {
-                        Text(text = stringResource(id = R.string.stop))
                     }
                 }
             }

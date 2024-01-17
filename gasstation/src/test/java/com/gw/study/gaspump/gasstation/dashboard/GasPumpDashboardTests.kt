@@ -3,11 +3,13 @@ package com.gw.study.gaspump.gasstation.dashboard
 import com.gw.study.gaspump.gasstation.assistant.factory.TestFlow
 import com.gw.study.gaspump.gasstation.dashboard.builder.DashboardBuilder
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
+import com.gw.study.gaspump.gasstation.dashboard.preset.model.PresetType
 import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.GasPrice
 import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.GasPump
+import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.scope.CoroutineTestScopeFactory
 import com.gw.study.gaspump.gasstation.state.BreadBoard
@@ -161,13 +163,14 @@ class GasPumpDashboardTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenResetCalled_shouldResetGasAmountAndPayment() = runTest {
+    fun whenResetCalled_shouldResetGasAmountAndPaymentAndPreset() = runTest {
 
         val dashboard = dashboardBuilder
             .setScope(this)
             .addStubs(
                 GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(4, Gas.Gasoline, 1)) },
                 GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
+                BreadBoard::class to { whenever(engineBreadBoard.getSpeed()).thenReturn(MutableStateFlow(Speed.Normal)) }
             )
             .build()
 
@@ -199,5 +202,7 @@ class GasPumpDashboardTests {
         }
 
         advanceUntilIdle()
+
+        verify(presetGauge).setPreset(eq(0), eq(PresetType.Payment))
     }
 }

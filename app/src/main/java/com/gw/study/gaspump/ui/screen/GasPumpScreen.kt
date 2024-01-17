@@ -83,6 +83,9 @@ fun GasPumpApp(
             onGasSelected = { gas: Gas ->
                 viewModel.sendEvent(GasPumpEvent.GasTypeSelect(gasType = gas))
             },
+            onResetClicked = {
+                viewModel.sendEvent(GasPumpEvent.Reset)
+            },
             modifier = modifier.padding(it)
         )
     }
@@ -95,6 +98,7 @@ fun GasPumpScreen(
     onLifeCycleChanged: (EngineLifeCycle) -> Unit,
     presetValueInput: (String) -> Unit,
     onGasSelected: (Gas) -> Unit,
+    onResetClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -120,6 +124,7 @@ fun GasPumpScreen(
             onLifeCycleChanged = onLifeCycleChanged,
             onPresetValueChanged = presetValueInput,
             onGasTypeChanged = onGasSelected,
+            onResetClicked = onResetClicked,
             modifier = Modifier.weight(0.7f)
         )
     }
@@ -262,6 +267,7 @@ fun GasPumpControl(
     onLifeCycleChanged: (EngineLifeCycle) -> Unit,
     onPresetValueChanged: (String) -> Unit,
     onGasTypeChanged: (Gas) -> Unit,
+    onResetClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -342,6 +348,15 @@ fun GasPumpControl(
                     ) {
                         Text(text = stringResource(id = R.string.start))
                     }
+
+                    if (lifeCycle == EngineLifeCycle.Stop) {
+                        Button(
+                            modifier = Modifier.padding(dimensionResource(id = R.dimen.card_normal_padding)),
+                            onClick = { onResetClicked() }
+                        ) {
+                            Text(text = stringResource(id = R.string.reset))
+                        }
+                    }
                 }
             }
         }
@@ -408,7 +423,8 @@ fun GasPumpScreenPreview() {
             gasNames = GasNames,
             onLifeCycleChanged = {},
             presetValueInput = {},
-            onGasSelected = {}
+            onGasSelected = {},
+            onResetClicked = {}
         )
     }
 }

@@ -1,4 +1,4 @@
-package com.gw.study.gaspump
+package com.gw.study.gaspump.ui.screen
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -17,18 +17,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.gw.study.gaspump.R
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.model.Price
 import com.gw.study.gaspump.gasstation.pump.engine.model.Speed
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.tag.TestTag
-import com.gw.study.gaspump.ui.screen.GasPumpApp
-import com.gw.study.gaspump.ui.screen.GasPumpControl
-import com.gw.study.gaspump.ui.screen.GasPumpEvent
-import com.gw.study.gaspump.ui.screen.GasPumpInfo
-import com.gw.study.gaspump.ui.screen.GasPumpUiState
-import com.gw.study.gaspump.ui.screen.GasPumpViewModel
 import com.gw.study.gaspump.ui.screen.data.screen.GasPumpScreenData
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -89,7 +84,7 @@ class GasPumpScreenTests {
             )
         }
         val textGasoline = R.string.gasoline
-        val textDiesel =  R.string.diesel
+        val textDiesel = R.string.diesel
         val textPremium = R.string.premium
         val textStart = R.string.start
         rule.onNodeWithTag(TestTag.PRESET).assert(hasText(R.string.preset_placeholder))

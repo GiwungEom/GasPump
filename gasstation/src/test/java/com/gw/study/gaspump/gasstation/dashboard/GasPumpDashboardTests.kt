@@ -144,4 +144,11 @@ class GasPumpDashboardTests {
 
         Assert.assertTrue(dashboard.gasPrices.isNotEmpty())
     }
+
+    @Test
+    fun whenResetCalled_shouldResetBreadboardState() = runTest {
+        val dashboard = dashboardBuilder.setScope(this).build()
+        dashboard.reset()
+        verify(engineBreadBoard).reset()
+    }
 }

@@ -101,6 +101,7 @@ class GasPumpDashboard(
     override suspend fun reset() {
         engineBreadBoard.reset()
         reset.value = Trigger.Reset
+        setPresetGasAmount(0)
     }
 
     override fun destroy() {

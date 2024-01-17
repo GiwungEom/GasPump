@@ -5,4 +5,6 @@ import com.gw.study.gaspump.gasstation.pump.engine.state.SendEngineState
 import com.gw.study.gaspump.gasstation.pump.type.state.ReceiveGasEngineState
 import com.gw.study.gaspump.gasstation.pump.type.state.SendGasEngineState
 
-interface BreadBoard : ReceiveEngineState, SendEngineState, ReceiveGasEngineState, SendGasEngineState
+interface BreadBoard : ReceiveEngineState, SendEngineState, ReceiveGasEngineState, SendGasEngineState {
+    suspend fun reset()
+}

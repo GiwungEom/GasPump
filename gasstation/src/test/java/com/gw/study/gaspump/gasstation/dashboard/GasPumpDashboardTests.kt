@@ -12,8 +12,14 @@ import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.scope.CoroutineTestScopeFactory
 import com.gw.study.gaspump.gasstation.state.BreadBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -103,6 +109,7 @@ class GasPumpDashboardTests {
         dashboard.pumpStart()
         verify(engineBreadBoard).sendLifeCycle(eq(EngineLifeCycle.Start))
     }
+
     @Test
     fun whenCallPumpStop_shouldCallSendLifeCycleWithStop() = runTest {
         val dashboard = dashboardBuilder.setScope(this).build()
@@ -150,5 +157,47 @@ class GasPumpDashboardTests {
         val dashboard = dashboardBuilder.setScope(this).build()
         dashboard.reset()
         verify(engineBreadBoard).reset()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenResetCalled_shouldResetGasAmountAndPayment() = runTest {
+
+        val dashboard = dashboardBuilder
+            .setScope(this)
+            .addStubs(
+                GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(4, Gas.Gasoline, 1)) },
+                GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
+            )
+            .build()
+
+        val expectedInitialValue = 0
+        val expectedGasAmount = listOf(0, 1, 2, 3, expectedInitialValue)
+        val expectedPayment = listOf(GAS_PRICE_EXPECTED, expectedInitialValue)
+
+        launch {
+            val actual = dashboard.gasAmount
+                .onStart { println("gasAmount started") }
+                .onCompletion { println("gasAmount completion") }
+                .take(5)
+                .toList()
+            Assert.assertEquals(expectedGasAmount.joinToString(), actual.joinToString())
+        }
+
+        launch {
+            val actual = dashboard.payment
+                .onStart { println("payment started") }
+                .onCompletion { println("payment completion") }
+                .take(2)
+                .toList()
+            Assert.assertEquals(expectedPayment.joinToString(), actual.joinToString())
+        }
+
+        launch {
+            delay(3)
+            dashboard.reset()
+        }
+
+        advanceUntilIdle()
     }
 }

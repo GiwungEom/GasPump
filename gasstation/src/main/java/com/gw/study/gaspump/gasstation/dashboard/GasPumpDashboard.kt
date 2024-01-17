@@ -3,6 +3,8 @@ package com.gw.study.gaspump.gasstation.dashboard
 import com.gw.study.gaspump.gasstation.dashboard.preset.PresetGauge
 import com.gw.study.gaspump.gasstation.dashboard.preset.model.PresetType
 import com.gw.study.gaspump.gasstation.dashboard.preset.state.Gauge
+import com.gw.study.gaspump.gasstation.flow.Trigger
+import com.gw.study.gaspump.gasstation.flow.resetFlow
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.price.GasPrice
 import com.gw.study.gaspump.gasstation.price.model.Price
@@ -15,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -29,11 +32,21 @@ class GasPumpDashboard(
     private val scope: CoroutineScope = CoroutineScope(CoroutineName("dashboard") + Dispatchers.Default + SupervisorJob())
 ) : Dashboard {
 
+    private val reset = MutableStateFlow(Trigger.None)
+
     private val gasFlow = gasPump()
 
-    override val gasAmount = gasFlow.map { 0 }.runningReduce { acc, _ -> acc + 1 }
+    override val gasAmount = resetFlow(
+        flow = gasFlow.map { 0 }.runningReduce { acc, _ -> acc + 1 },
+        resetStateFlow = reset,
+        initialValue = 0
+    )
 
-    override val payment = gasPrice.calc(gasFlow)
+    override val payment = resetFlow(
+        flow = gasPrice.calc(gasFlow),
+        resetStateFlow = reset,
+        initialValue = 0
+    )
 
     override val gasType = engineBreadBoard.getGasType()
 
@@ -58,6 +71,7 @@ class GasPumpDashboard(
     }
 
     override suspend fun pumpStart() {
+        reset.value = Trigger.None
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Start)
     }
 
@@ -86,6 +100,7 @@ class GasPumpDashboard(
 
     override suspend fun reset() {
         engineBreadBoard.reset()
+        reset.value = Trigger.Reset
     }
 
     override fun destroy() {

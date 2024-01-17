@@ -120,6 +120,15 @@ class GasPumpViewModelTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun whenSendEventReset_shouldCallDashboardReset() = runTest {
+        val viewModel = viewModelBuilder.build()
+        viewModel.sendEvent(GasPumpEvent.Reset)
+        advanceUntilIdle()
+        verify(dashboard).reset()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun whenGasAmountAndPaymentChanged_sameTime_shouldUpdateGasPumpUiStateGasAmountAndPayment() = runTest {
         val expectedGasAmount = 10
         val expectedGasPayment = 11

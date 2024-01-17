@@ -84,6 +84,10 @@ class GasPumpDashboard(
         }
     }
 
+    override suspend fun reset() {
+        engineBreadBoard.reset()
+    }
+
     override fun destroy() {
         try {
             scope.cancel()

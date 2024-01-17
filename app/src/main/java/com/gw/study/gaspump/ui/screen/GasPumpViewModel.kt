@@ -30,9 +30,14 @@ class GasPumpViewModel @Inject constructor(
             is GasPumpEvent.PumpStart -> onStartPump()
             is GasPumpEvent.PumpStop -> onStopPump()
             is GasPumpEvent.PumpPause -> onPausePump()
+            is GasPumpEvent.Reset -> onReset()
             is GasPumpEvent.PresetInfoSet -> onSetPreset(event)
             is GasPumpEvent.GasTypeSelect -> onSetGasType(event)
         }
+    }
+
+    private suspend fun onReset() {
+        dashboard.reset()
     }
 
     private fun collectDashboard() {

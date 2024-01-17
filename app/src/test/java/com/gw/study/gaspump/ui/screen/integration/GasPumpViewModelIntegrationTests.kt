@@ -52,11 +52,7 @@ class GasPumpViewModelIntegrationTests {
             PowerGasEngine(gas = Gas.Premium, engine = engine, receiveState = engineBreadBoard),
             PowerGasEngine(gas = Gas.Diesel, engine = engine, receiveState = engineBreadBoard)
         )
-        val gasPrice = CumulateGasPrice().apply {
-            addPrice(Price(Gas.Gasoline, 100))
-            addPrice(Price(Gas.Diesel, 50))
-            addPrice(Price(Gas.Premium, 200))
-        }
+        val gasPrice = getGasPrice()
         val presetGauge = PresetGauge()
 
         val dashboard = GasPumpDashboard(
@@ -88,12 +84,13 @@ class GasPumpViewModelIntegrationTests {
         val paymentExpected = 100
         val lifecycleExpected = EngineLifeCycle.Start
         val gasType = Gas.Gasoline
-
+        val gasPrice = getGasPrice()
         val expected = GasPumpUiState(
             gasAmount = gasAmountExpected,
             payment = paymentExpected,
             lifeCycle = lifecycleExpected,
-            gasType = gasType
+            gasType = gasType,
+            gasPrices = gasPrice.prices
         )
 
         viewModel.sendEvent(GasPumpEvent.GasTypeSelect(expected.gasType))
@@ -111,4 +108,11 @@ class GasPumpViewModelIntegrationTests {
         advanceUntilIdle()
         Assert.assertEquals(expected, actual)
     }
+
+    private fun getGasPrice() =
+         CumulateGasPrice().apply {
+            addPrice(Price(Gas.Gasoline, 100))
+            addPrice(Price(Gas.Diesel, 50))
+            addPrice(Price(Gas.Premium, 200))
+        }
 }

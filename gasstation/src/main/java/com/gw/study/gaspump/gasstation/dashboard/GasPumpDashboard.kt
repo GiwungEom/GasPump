@@ -18,11 +18,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.runningReduce
+import kotlinx.coroutines.flow.stateIn
 
 class GasPumpDashboard(
     gasPump: GasPump,
@@ -32,6 +34,7 @@ class GasPumpDashboard(
     private val scope: CoroutineScope = CoroutineScope(CoroutineName("dashboard") + Dispatchers.Default + SupervisorJob())
 ) : Dashboard {
 
+
     private val reset = MutableStateFlow(Trigger.None)
 
     private val gasFlow = gasPump()
@@ -40,13 +43,27 @@ class GasPumpDashboard(
         flow = gasFlow.map { 0 }.runningReduce { acc, _ -> acc + 1 },
         resetStateFlow = reset,
         initialValue = 0
+    ).stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(0),
+        initialValue = 0
     )
 
     override val payment = resetFlow(
         flow = gasPrice.calc(gasFlow),
         resetStateFlow = reset,
         initialValue = 0
+    ).stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(0),
+        initialValue = 0
     )
+
+    init {
+        presetGauge.getGauge(gasAmount, payment)
+            .onEach { changeEngineState(it) }
+            .launchIn(scope = scope)
+    }
 
     override val gasType = engineBreadBoard.getGasType()
 
@@ -58,12 +75,6 @@ class GasPumpDashboard(
 
     override val speed = engineBreadBoard.getSpeed()
 
-    init {
-        presetGauge.getGauge(gasAmount, payment)
-            .onEach { changeEngineState(it) }
-            .launchIn(scope = scope)
-    }
-
     override suspend fun setGasType(gas: Gas) {
         if (lifeCycle.value != EngineLifeCycle.Start) {
             engineBreadBoard.sendGasType(gas)
@@ -71,8 +82,8 @@ class GasPumpDashboard(
     }
 
     override suspend fun pumpStart() {
-        reset.value = Trigger.None
         engineBreadBoard.sendLifeCycle(EngineLifeCycle.Start)
+        reset.value = Trigger.None
     }
 
     override suspend fun pumpStop() {

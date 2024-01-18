@@ -5,10 +5,10 @@ import com.gw.study.gaspump.gasstation.dashboard.Dashboard
 import com.gw.study.gaspump.ui.architecture.viewmodel.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.zip
 
 class GasPumpViewModel(
     private val dashboard: Dashboard,
@@ -38,7 +38,7 @@ class GasPumpViewModel(
 
     private fun collectDashboard() {
         dashboard.gasAmount
-            .zip(
+            .combine(
                 dashboard.payment
             ) { gasAmount, payment ->
                 update { onGasAmountAndPaymentChanged(gasAmount, payment) }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.combine
 
 private const val EMPTY = 0F
 private const val SPARE = 0.3F
@@ -52,7 +52,7 @@ class PresetGauge(
     }
 
     fun getGauge(gasAmount: Flow<Int>, payment: Flow<Int>): Flow<Gauge> {
-        return gasAmount.zip(payment) { fuel, fee ->
+        return gasAmount.combine(payment) { fuel, fee ->
             if (presetAmount.value.amount == 0) {
                 Gauge.Empty
             } else {

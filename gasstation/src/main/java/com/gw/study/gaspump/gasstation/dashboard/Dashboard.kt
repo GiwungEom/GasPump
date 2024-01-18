@@ -35,4 +35,6 @@ interface Dashboard {
     fun setPresetGasAmount(expected: Int)
 
     fun destroy()
+
+    suspend fun reset()
 }

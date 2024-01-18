@@ -17,4 +17,5 @@
     <string name="selected_gas_title">선택 연료</string>
     <string name="progress_title">진행 상태</string>
     <string name="price_title">가격</string>
+    <string name="reset">Reset</string>
 </resources>

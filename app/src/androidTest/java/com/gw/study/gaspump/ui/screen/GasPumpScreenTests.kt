@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -80,7 +81,8 @@ class GasPumpScreenTests {
                 lifeCycle = EngineLifeCycle.Create,
                 onLifeCycleChanged = {},
                 onPresetValueChanged = {},
-                onGasTypeChanged = {}
+                onGasTypeChanged = {},
+                onResetClicked = {}
             )
         }
         val textGasoline = R.string.gasoline
@@ -104,7 +106,8 @@ class GasPumpScreenTests {
                 lifeCycle = EngineLifeCycle.Create,
                 onLifeCycleChanged = {},
                 onPresetValueChanged = {},
-                onGasTypeChanged = {}
+                onGasTypeChanged = {},
+                onResetClicked = {}
             )
         }
 
@@ -124,7 +127,8 @@ class GasPumpScreenTests {
                 onPresetValueChanged = {},
                 onGasTypeChanged = {
                     gasType = it
-                }
+                },
+                onResetClicked = {}
             )
         }
         rule.onNode(hasClickAction() and hasText(R.string.gasoline)).performClick()
@@ -149,7 +153,8 @@ class GasPumpScreenTests {
                 onPresetValueChanged = {},
                 onGasTypeChanged = {
                     gasType = it
-                }
+                },
+                onResetClicked = {}
             )
         }
 
@@ -182,7 +187,8 @@ class GasPumpScreenTests {
                     lifeCycle = it
                 },
                 onPresetValueChanged = {},
-                onGasTypeChanged = {}
+                onGasTypeChanged = {},
+                onResetClicked = {}
             )
         }
 
@@ -204,7 +210,8 @@ class GasPumpScreenTests {
                     lifecycle = it
                 },
                 onPresetValueChanged = {},
-                onGasTypeChanged = {}
+                onGasTypeChanged = {},
+                onResetClicked = {}
             )
         }
 
@@ -259,6 +266,46 @@ class GasPumpScreenTests {
         val expectedEvent = GasPumpEvent.PresetInfoSet(PresetGauge.AmountInfo(expectedValue))
         rule.onNode(hasClickAction() and hasText(rule.activity.getString(R.string.preset_placeholder))).performTextInput(expectedValue.toString())
         verify(viewModel).sendEvent(expectedEvent)
+    }
+
+    @Test
+    fun whenGasPumpFinished_shouldShowResetButton() {
+        rule.setContent {
+            GasPumpControl(
+                presetInfo = PresetGauge.AmountInfo(),
+                gasNames = GasPumpScreenData.GasNames,
+                gasType = Gas.Gasoline,
+                lifeCycle = EngineLifeCycle.Stop,
+                onLifeCycleChanged = {},
+                onPresetValueChanged = {},
+                onGasTypeChanged = {},
+                onResetClicked = {}
+            )
+        }
+
+        rule.onNode(hasClickAction() and hasText(R.string.reset)).assertExists()
+    }
+
+    @Test
+    fun whenResetButtonClicked_shouldInvokeViewModelEvent_withReset() {
+        whenever(viewModel.uiState).thenReturn(
+            MutableStateFlow(
+                GasPumpUiState(
+                    gasType = Gas.Gasoline,
+                    lifeCycle = EngineLifeCycle.Stop,
+                    speed = Speed.Slow
+                )
+            )
+        )
+
+        rule.setContent {
+            GasPumpApp(
+                viewModel = viewModel
+            )
+        }
+
+        rule.onNode(hasClickAction() and hasText(R.string.reset)).performClick()
+        verify(viewModel).sendEvent(eq(GasPumpEvent.Reset))
     }
 
     private fun hasText(@StringRes resId: Int) =

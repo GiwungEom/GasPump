@@ -14,6 +14,7 @@ import com.gw.study.gaspump.R
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.tag.TestTag
+import com.gw.study.gaspump.ui.screen.GasPumpScreenEndToEndResetTests
 import com.gw.study.gaspump.ui.screen.GasPumpScreenEndToEndTests
 
 fun GasPumpScreenEndToEndTests.startGasPump(func: GasPumpRobot.() -> Unit) {
@@ -21,9 +22,15 @@ fun GasPumpScreenEndToEndTests.startGasPump(func: GasPumpRobot.() -> Unit) {
 }
 
 fun GasPumpScreenEndToEndTests.startGasPumpWithPreset(func: GasPumpRobot.() -> Unit) {
-    rule.registerIdlingResource(idlingResource = idlingResource)
+    rule.registerIdlingResource(idlingResource = countingIdlingResource)
     startGasPump(func)
-    rule.unregisterIdlingResource(idlingResource = idlingResource)
+    rule.unregisterIdlingResource(idlingResource = countingIdlingResource)
+}
+
+fun GasPumpScreenEndToEndResetTests.startGasPumpAndReset(func: GasPumpRobot.() -> Unit) {
+    rule.registerIdlingResource(idlingResource = uriIdlingResource)
+    GasPumpRobot(this.rule).func()
+    rule.unregisterIdlingResource(idlingResource = uriIdlingResource)
 }
 
 class GasPumpRobot(
@@ -61,9 +68,21 @@ SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText)
         clickButtonWithStringId(R.string.start)
     }
 
+    fun reset() {
+        clickButtonWithStringId(R.string.reset)
+    }
+
+    fun checkPayment(text: String) = matchText(hasTestTag(TestTag.PAYMENT), text)
+
     fun checkGasAmountChanged() = checkValueChanged(TestTag.GAS_AMOUNT)
 
     fun checkPaymentChanged() = checkValueChanged(TestTag.PAYMENT)
+
+    fun checkInitialGasAmount() = matchText(hasTestTag(TestTag.GAS_AMOUNT), "0")
+
+    fun checkInitialPreset() = matchText(hasTestTag(TestTag.PRESET), getText(R.string.preset_placeholder))
+
+    fun checkInitialPayment() = checkPayment("0")
 
     private fun checkValueChanged(tag: String) {
         matchNoText(hasTestTag(tag), "0")

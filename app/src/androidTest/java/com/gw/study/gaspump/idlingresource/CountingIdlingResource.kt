@@ -1,23 +1,16 @@
 package com.gw.study.gaspump.idlingresource
 
-import androidx.compose.ui.test.IdlingResource
+import com.gw.study.gaspump.idlingresource.base.CountingBaseIdlingResource
 import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class CountingIdlingResource @Inject constructor(): IdlingResource {
+internal open class CountingIdlingResource : CountingBaseIdlingResource {
 
     private val counter = AtomicInteger(0)
 
     override val isIdleNow: Boolean
         get() = counter.get() == 0
 
-    fun increment() {
-        counter.incrementAndGet()
-    }
+    override fun increment(): Int = counter.incrementAndGet()
 
-    fun decrement() {
-        counter.getAndDecrement()
-    }
+    override fun decrement(): Int = counter.decrementAndGet()
 }

@@ -18,6 +18,7 @@ import com.gw.study.gaspump.ui.screen.rule.MainDispatcherRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -107,6 +108,36 @@ class GasPumpViewModelIntegrationTests {
         }
         advanceUntilIdle()
         Assert.assertEquals(expected, actual)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenPumpStart_withPreset_shouldBeSamePaymentWithPreset() = runTest {
+        val gasAmountExpected = 1
+        val paymentExpected = 3000
+        val lifecycleExpected = EngineLifeCycle.Stop
+        val gasType = Gas.Gasoline
+        val gasPrice = getGasPrice()
+        val expected = GasPumpUiState(
+            gasAmount = gasAmountExpected,
+            payment = paymentExpected,
+            lifeCycle = lifecycleExpected,
+            gasType = gasType,
+            gasPrices = gasPrice.prices
+        )
+
+        viewModel.sendEvent(GasPumpEvent.PresetInfoSet(PresetGauge.AmountInfo(paymentExpected)))
+        viewModel.sendEvent(GasPumpEvent.GasTypeSelect(expected.gasType))
+        viewModel.sendEvent(GasPumpEvent.PumpStart)
+
+        launch {
+            val actualUiState = viewModel.uiState.first { it.lifeCycle == EngineLifeCycle.Stop }
+            Assert.assertEquals(paymentExpected, actualUiState.payment)
+        }.invokeOnCompletion {
+            dashboardScope.cancel()
+        }
+
+        advanceUntilIdle()
     }
 
     private fun getGasPrice() =

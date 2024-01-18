@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class EngineBreadBoard : BreadBoard {
 
-    private val engineLifeCycle = MutableStateFlow(EngineLifeCycle.Create)
-    private val engineSpeed = MutableStateFlow(Speed.Normal)
-    private val gasType: MutableStateFlow<Gas> = MutableStateFlow(Gas.Unknown)
+    private val lifeCycleInit = EngineLifeCycle.Create
+    private val speedInit = Speed.Normal
+    private val gasTypeInit: Gas = Gas.Unknown
+
+    private val engineLifeCycle = MutableStateFlow(lifeCycleInit)
+    private val engineSpeed = MutableStateFlow(speedInit)
+    private val gasType = MutableStateFlow(gasTypeInit)
 
     override fun getLifeCycle(): StateFlow<EngineLifeCycle> = engineLifeCycle.asStateFlow()
 
@@ -26,4 +30,10 @@ class EngineBreadBoard : BreadBoard {
     override fun getGasType(): StateFlow<Gas> = gasType.asStateFlow()
 
     override suspend fun sendGasType(gas: Gas) = gasType.emit(gas)
+
+    override suspend fun reset() {
+        setSpeed(speedInit)
+        sendLifeCycle(lifeCycleInit)
+        sendGasType(gasTypeInit)
+    }
 }

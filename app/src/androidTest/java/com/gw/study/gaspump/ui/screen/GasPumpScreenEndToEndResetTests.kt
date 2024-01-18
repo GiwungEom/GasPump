@@ -1,18 +1,15 @@
 package com.gw.study.gaspump.ui.screen
 
-import com.gw.study.gaspump.R
-import com.gw.study.gaspump.di.CountingIdleResource
 import com.gw.study.gaspump.di.GasEngineModule
-import com.gw.study.gaspump.di.coroutine.DashboardScope
+import com.gw.study.gaspump.di.UriIdleResource
+import com.gw.study.gaspump.di.coroutine.EngineScope
 import com.gw.study.gaspump.gasstation.model.Gas
 import com.gw.study.gaspump.gasstation.pump.engine.DecoratedEngine
 import com.gw.study.gaspump.gasstation.pump.engine.Engine
 import com.gw.study.gaspump.gasstation.pump.engine.LoopEngine
-import com.gw.study.gaspump.gasstation.pump.engine.state.EngineLifeCycle
 import com.gw.study.gaspump.gasstation.pump.engine.state.ReceiveEngineState
 import com.gw.study.gaspump.idlingresource.base.CountingBaseIdlingResource
-import com.gw.study.gaspump.robot.startGasPump
-import com.gw.study.gaspump.robot.startGasPumpWithPreset
+import com.gw.study.gaspump.robot.startGasPumpAndReset
 import com.gw.study.gaspump.ui.screen.base.BaseHiltTest
 import dagger.Module
 import dagger.Provides
@@ -26,16 +23,22 @@ import javax.inject.Inject
 
 @UninstallModules(GasEngineModule::class)
 @HiltAndroidTest
-class GasPumpScreenEndToEndTests : BaseHiltTest() {
+class GasPumpScreenEndToEndResetTests : BaseHiltTest() {
+
+
+    @UriIdleResource
+    @Inject
+    lateinit var uriIdlingResource: CountingBaseIdlingResource
 
     @InstallIn(ViewModelComponent::class)
     @Module
     class TestGasEngineModule {
+
         @Provides
         fun providesEngine(
-            @CountingIdleResource idlingResource: CountingBaseIdlingResource,
+            @UriIdleResource idlingResource: CountingBaseIdlingResource,
             engineState: ReceiveEngineState,
-            @DashboardScope coroutineScope: CoroutineScope
+            @EngineScope coroutineScope: CoroutineScope
         ): Engine {
             return DecoratedEngine(
                 idlingResource = idlingResource,
@@ -49,30 +52,17 @@ class GasPumpScreenEndToEndTests : BaseHiltTest() {
         }
     }
 
-    @CountingIdleResource
-    @Inject
-    lateinit var countingIdlingResource: CountingBaseIdlingResource
-
     @Test
-    fun whenStartButtonClicked_shouldNotShowInitialGasAmountAndPayment() {
-        startGasPump {
-            selectGasType(Gas.Gasoline)
-            start()
-            checkGasAmountChanged()
-            checkPaymentChanged()
-        }
-    }
-
-    @Test
-    fun whenStartButtonClicked_withPresetAmount_shouldStopWhenPaymentIsLargerThanPresetAmount() {
-        startGasPumpWithPreset {
+    fun whenResetButtonClicked_shouldShowInitialValue() {
+        startGasPumpAndReset {
             inputPresetPayment("3000")
             selectGasType(Gas.Gasoline)
             start()
 
-            checkButton(R.string.start)
-            checkPayment("3000")
-            checkLifeCycle(EngineLifeCycle.Stop)
+            reset()
+            checkInitialGasAmount()
+            checkInitialPreset()
+            checkInitialPayment()
         }
     }
 }

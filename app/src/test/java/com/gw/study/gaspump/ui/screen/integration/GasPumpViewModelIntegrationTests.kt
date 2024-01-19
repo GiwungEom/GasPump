@@ -140,6 +140,37 @@ class GasPumpViewModelIntegrationTests {
         advanceUntilIdle()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenPumpStart_withPreset_shouldHaveRightGasAmount() = runTest {
+        val paymentExpected = 3000
+        val lifecycleExpected = EngineLifeCycle.Stop
+        val gasType = Gas.Gasoline
+        val gasPrice = getGasPrice()
+        val gasAmountExpected = paymentExpected / requireNotNull(gasPrice.prices[gasType]?.pricePerLiter)
+
+        val expected = GasPumpUiState(
+            gasAmount = gasAmountExpected,
+            payment = paymentExpected,
+            lifeCycle = lifecycleExpected,
+            gasType = gasType,
+            gasPrices = gasPrice.prices
+        )
+
+        viewModel.sendEvent(GasPumpEvent.PresetInfoSet(PresetGauge.AmountInfo(paymentExpected)))
+        viewModel.sendEvent(GasPumpEvent.GasTypeSelect(expected.gasType))
+        viewModel.sendEvent(GasPumpEvent.PumpStart)
+
+        launch {
+            val actualUiState = viewModel.uiState.first { it.lifeCycle == EngineLifeCycle.Stop }
+            Assert.assertEquals(gasAmountExpected, actualUiState.gasAmount)
+        }.invokeOnCompletion {
+            dashboardScope.cancel()
+        }
+
+        advanceUntilIdle()
+    }
+
     private fun getGasPrice() =
          CumulateGasPrice().apply {
             addPrice(Price(Gas.Gasoline, 100))

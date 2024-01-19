@@ -40,7 +40,7 @@ class GasPumpDashboard(
     private val gasFlow = gasPump()
 
     override val gasAmount = resetFlow(
-        flow = gasFlow.map { 0 }.runningReduce { acc, _ -> acc + 1 },
+        flow = gasFlow.map { 1 }.runningReduce { acc, _ -> acc + 1 }.onEach { println("gasAmount : $it") },
         resetStateFlow = reset,
         initialValue = 0
     ).stateIn(

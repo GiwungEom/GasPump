@@ -59,14 +59,9 @@ class GasPumpScreenTests {
             Gas.Premium to Price(Gas.Gasoline, 100),
         )
         rule.setContent {
-            GasPumpInfo(
-                gasAmount = "0",
-                payment = "0",
-                gasPrices = prices,
-                gasType = Gas.Unknown,
-                lifeCycle = EngineLifeCycle.Create,
-                speed = Speed.Normal
-            )
+            getDefaultGasPumpInfoCompose(
+                gasPrices = prices
+            ).invoke()
         }
 
         rule.onNodeWithTag(TestTag.GAS_AMOUNT).assert(hasText("0"))
@@ -80,17 +75,6 @@ class GasPumpScreenTests {
     @Test
     fun whenGasPumpControlIsVisible_shouldShowPresetAndStartAndFuelsButton() {
         rule.setContent {
-//            GasPumpControl(
-//                payment = "0",
-//                presetInfo = PresetGauge.AmountInfo(),
-//                gasNames = GasPumpScreenData.GasNames,
-//                gasType = Gas.Unknown,
-//                lifeCycle = EngineLifeCycle.Create,
-//                onLifeCycleChanged = {},
-//                onPresetValueChanged = {},
-//                onGasTypeChanged = {},
-//                onResetClicked = {}
-//            )
             getDefaultGasPumpControlCompose().invoke()
         }
         val textGasoline = R.string.gasoline
@@ -107,17 +91,6 @@ class GasPumpScreenTests {
     @Test
     fun whenGasTypeUnknown_shouldDisableStartButton() {
         rule.setContent {
-//            GasPumpControl(
-//                payment = "0",
-//                presetInfo = PresetGauge.AmountInfo(),
-//                gasNames = GasPumpScreenData.GasNames,
-//                gasType = Gas.Unknown,
-//                lifeCycle = EngineLifeCycle.Create,
-//                onLifeCycleChanged = {},
-//                onPresetValueChanged = {},
-//                onGasTypeChanged = {},
-//                onResetClicked = {}
-//            )
             getDefaultGasPumpControlCompose(
                 gasType = Gas.Unknown
             ).invoke()
@@ -130,19 +103,6 @@ class GasPumpScreenTests {
     fun whenGasTypeSelected_shouldEnableStartButton() {
         rule.setContent {
             var gasType: Gas by remember { mutableStateOf(Gas.Unknown) }
-//            GasPumpControl(
-//                payment = "0",
-//                presetInfo = PresetGauge.AmountInfo(),
-//                gasNames = GasPumpScreenData.GasNames,
-//                gasType = gasType,
-//                lifeCycle = EngineLifeCycle.Create,
-//                onLifeCycleChanged = {},
-//                onPresetValueChanged = {},
-//                onGasTypeChanged = {
-//                    gasType = it
-//                },
-//                onResetClicked = {}
-//            )
             getDefaultGasPumpControlCompose(
                 gasType = gasType,
                 onGasTypeChanged = {
@@ -160,23 +120,6 @@ class GasPumpScreenTests {
         rule.setContent {
             var gasType: Gas by remember { mutableStateOf(gas) }
             var lifeCycle: EngineLifeCycle by remember { mutableStateOf(EngineLifeCycle.Create) }
-
-//            GasPumpControl(
-//                payment = "0",
-//                presetInfo = PresetGauge.AmountInfo(),
-//                gasNames = GasPumpScreenData.GasNames,
-//                gasType = gasType,
-//                lifeCycle = lifeCycle,
-//                onLifeCycleChanged = {
-//                    lifeCycle = it
-//                },
-//                onPresetValueChanged = {},
-//                onGasTypeChanged = {
-//                    gasType = it
-//                },
-//                onResetClicked = {}
-//            )
-
             getDefaultGasPumpControlCompose(
                 gasType = gasType,
                 lifeCycle = lifeCycle,
@@ -227,20 +170,6 @@ class GasPumpScreenTests {
     fun whenStopButtonClicked_shouldEnableGasTypeButtonsAndShowStartButton() {
         rule.setContent {
             var lifecycle by remember { mutableStateOf(EngineLifeCycle.Start) }
-//            GasPumpControl(
-//                payment = "0",
-//                presetInfo = PresetGauge.AmountInfo(),
-//                gasNames = GasPumpScreenData.GasNames,
-//                gasType = Gas.Gasoline,
-//                lifeCycle = lifecycle,
-//                onLifeCycleChanged = {
-//                    lifecycle = it
-//                },
-//                onPresetValueChanged = {},
-//                onGasTypeChanged = {},
-//                onResetClicked = {}
-//            )
-
             getDefaultGasPumpControlCompose(
                 gasType = Gas.Gasoline,
                 lifeCycle = lifecycle,
@@ -401,6 +330,31 @@ class GasPumpScreenTests {
         }
 
         rule.onNode(hasTestTag(TestTag.PRESET)).assertIsNotEnabled()
+    }
+
+    @Composable
+    private fun getDefaultGasPumpInfoCompose(
+        gasAmount: String = "0",
+        payment: String = "0",
+        gasPrices: Map<Gas, Price> = mutableMapOf(
+            Gas.Gasoline to Price(Gas.Gasoline, 50),
+            Gas.Diesel to Price(Gas.Diesel, 10),
+            Gas.Premium to Price(Gas.Gasoline, 100),
+        ),
+        gasType: Gas = Gas.Unknown,
+        lifeCycle: EngineLifeCycle = EngineLifeCycle.Create,
+        speed: Speed = Speed.Normal
+    ): @Composable () -> Unit {
+        return {
+            GasPumpInfo(
+                gasAmount = gasAmount,
+                payment = payment,
+                gasPrices = gasPrices,
+                gasType = gasType,
+                lifeCycle = lifeCycle,
+                speed = speed
+            )
+        }
     }
 
     @Composable

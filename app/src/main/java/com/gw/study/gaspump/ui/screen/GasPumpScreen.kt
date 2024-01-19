@@ -1,5 +1,6 @@
 package com.gw.study.gaspump.ui.screen
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -182,14 +183,16 @@ fun GasPumpInfo(
                     .padding(start = 7.dp, end = 7.dp, bottom = 15.dp),
                 title = stringResource(R.string.progress_title),
                 content = lifeCycle.name,
-                testTag = TestTag.PROGRESS
+                testTag = TestTag.PROGRESS,
+                contentBgColor = { if (it == EngineLifeCycle.Stop.toString()) Color.Red else Color.Green}
             )
             GasInfoView(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 7.dp, end = 7.dp, bottom = 15.dp),
                 title = stringResource(R.string.speed_title),
-                content = speed.name
+                content = speed.name,
+                contentBgColor = { if (it == Speed.Slow.toString()) Color.Red else Color.Green}
             )
         }
 
@@ -227,14 +230,19 @@ fun GasPumpInfo(
 @Composable
 fun GasInfoView(
     modifier: Modifier = Modifier,
-    cardColors: CardColors = CardDefaults.cardColors(),
     title: String,
     content: String,
-    testTag: String = ""
+    testTag: String = "",
+    contentBgColor: ((String) -> Color)? = null
 ) {
+    val color by animateColorAsState(
+        targetValue = contentBgColor?.invoke(content) ?: MaterialTheme.colorScheme.surfaceVariant,
+        label = ""
+    )
+
     ElevatedCard(
         modifier = modifier,
-        colors = cardColors
+        colors = CardDefaults.cardColors(containerColor = color)
     ) {
         val centerGravity = Modifier
             .fillMaxWidth()

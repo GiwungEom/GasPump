@@ -117,9 +117,11 @@ fun GasPumpScreen(
         )
 
         GasPumpControl(
+            payment = uiState.payment.toString(),
             presetInfo = uiState.presetInfo,
             gasNames = gasNames,
             gasType = uiState.gasType,
+            speed = uiState.speed,
             lifeCycle = uiState.lifeCycle,
             onLifeCycleChanged = onLifeCycleChanged,
             onPresetValueChanged = presetValueInput,
@@ -260,9 +262,11 @@ fun GasInfoView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GasPumpControl(
+    payment: String,
     presetInfo: PresetGauge.AmountInfo,
     gasNames: List<GasName>,
     gasType: Gas,
+    speed: Speed,
     lifeCycle: EngineLifeCycle,
     onLifeCycleChanged: (EngineLifeCycle) -> Unit,
     onPresetValueChanged: (String) -> Unit,
@@ -290,6 +294,7 @@ fun GasPumpControl(
                     contentDescription = stringResource(id = R.string.preset)
                 )
             },
+            enabled = speed == Speed.Normal,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = { onPresetValueChanged(it) }
         )
@@ -344,7 +349,7 @@ fun GasPumpControl(
                     Button(
                         modifier = Modifier.padding(dimensionResource(id = R.dimen.card_normal_padding)),
                         onClick = { onLifeCycleChanged(EngineLifeCycle.Start) },
-                        enabled = gasType != Gas.Unknown
+                        enabled = getStartButtonEnableValue(gasType, payment, presetInfo)
                     ) {
                         Text(text = stringResource(id = R.string.start))
                     }
@@ -361,6 +366,16 @@ fun GasPumpControl(
             }
         }
     }
+}
+
+private fun getStartButtonEnableValue(
+    gasType: Gas,
+    payment: String,
+    presetInfo: PresetGauge.AmountInfo
+): Boolean {
+    return if (gasType == Gas.Unknown) {
+        false
+    } else !(presetInfo.amount != 0 && payment.toInt() >= presetInfo.amount)
 }
 
 @Composable

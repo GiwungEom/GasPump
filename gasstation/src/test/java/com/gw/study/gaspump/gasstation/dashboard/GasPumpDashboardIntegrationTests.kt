@@ -81,8 +81,42 @@ class GasPumpDashboardIntegrationTests {
         launch {
             dashboard.lifeCycle.first { it == EngineLifeCycle.Stop}
             Assert.assertEquals(expectedPayment, actual)
+        }.invokeOnCompletion {
             testScope.cancel()
             paymentJob.cancel()
+        }
+
+        advanceUntilIdle()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun whenStopCalled_withPreset_shouldHaveRightGasAmount() = runTest(testScope.testScheduler) {
+        val presetPayment = 3000
+        val gasType = Gas.Gasoline
+        val gasPrice = requireNotNull(dashboard.gasPrices[gasType])
+        val expectedGasAmount = presetPayment / gasPrice.pricePerLiter
+
+        dashboard.setPresetGasAmount(presetPayment)
+        dashboard.setGasType(gasType)
+
+        var actual = 0
+        val gasAmountJob = launch {
+            dashboard.gasAmount.collect {
+                actual = it
+            }
+        }
+
+        launch {
+            dashboard.pumpStart()
+        }
+
+        launch {
+            dashboard.lifeCycle.first { it == EngineLifeCycle.Stop}
+            Assert.assertEquals(expectedGasAmount, actual)
+        }.invokeOnCompletion {
+            testScope.cancel()
+            gasAmountJob.cancel()
         }
 
         advanceUntilIdle()

@@ -166,7 +166,7 @@ class GasPumpDashboardTests {
 
         val dashboard = dashboardBuilder
             .addStubs(
-                GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(4, Gas.Gasoline, 1)) },
+                GasPump::class to { whenever(gasPump.invoke()).thenReturn(TestFlow.testFlow(3, Gas.Gasoline, 1)) },
                 GasPrice::class to { whenever(gasPrice.calc(any())).thenReturn(TestFlow.testFlow(1, GAS_PRICE_EXPECTED)) },
                 BreadBoard::class to { whenever(engineBreadBoard.getSpeed()).thenReturn(MutableStateFlow(Speed.Normal)) }
             )

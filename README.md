@@ -15,7 +15,7 @@ Project showcases:
 
 ## Screenshots
 
-<img src="readme/screenshot.png" alt="screenshot" width="1080">
+<img src="readme/screenshot.png" alt="screenshot" width="500">
 
 ## Features
 

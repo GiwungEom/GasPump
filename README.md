@@ -15,7 +15,7 @@ Project showcases:
 
 ## Screenshots
 
-<img src="readme/screenshot.png" alt="screenshot" width="500">
+<img src="readme/screenshot.png" alt="screenshot" width="350">
 
 ## Features
 
@@ -68,10 +68,12 @@ TDD 기반 Compose Ui 테스트 입니다. dexmaker-mockito-inline을 사용하�
 UI 테스트에 대한 상세한 구현 위주가 아닌, 어떻게 진행 되는지에 대해 기술 함으로써, 테스트의 이해도를 높였습니다.
 
 테스트 코드
+
 <img src="readme/robotpattern_source.png" alt="robot pattern source">
 
 테스트 실행
-<img src="readme/instrumented_test.gif" alt="robot pattern launch" width="500">
+
+<img src="readme/instrumented_test.gif" alt="robot pattern launch" width="350">
 
 [GasPumpScreenEndToEndResetTests](app/src/androidTest/java/com/gw/study/gaspump/ui/screen/GasPumpScreenEndToEndResetTests.kt) 에서 자세히 확인 할 수 있습니다.
 

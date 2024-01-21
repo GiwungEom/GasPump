@@ -17,6 +17,8 @@ Project showcases:
 
 <img src="readme/screenshot.png" alt="screenshot" width="350">
 
+<img src="readme/gasstation_overview.png" alt="overview" width="350">
+
 ## Features
 
 ### 컴포즈 기반 UI
